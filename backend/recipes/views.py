@@ -1,14 +1,69 @@
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import (IsAuthenticated, AllowAny,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from .models import Tag, Ingredient, Recipe, Favorite, ShopList
-from .serializers import (TagSerializer, IngredientSerializer, 
-                        RecipeSerializer, RecipesCreateSerializer,
-                        RecipeFollowSerializer) 
+from users.serializers import CustomUserSerializer
+from users.models import CustomUser
+from .models import Tag, Ingredient, Recipe, Favorite, ShopList, Follow
+from .serializers import (TagSerializer, IngredientSerializer, FollowSerializer,
+                        RecipeSerializer, RecipesCreateSerializer, UserFollowSerializer,
+                        RecipeFollowSerializer,  FollowCreateSerializer) 
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 from rest_framework import mixins, status, viewsets
+from djoser.views import UserViewSet
+
+class CustomUserViewSet(UserViewSet):
+    """ Вьюсет для модели пользователя с дополнительным операциями
+        через GET запросы. """
+
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    pagination_class = PageNumberPagination
+
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated(),)
+        return super().get_permissions()
+
+    @action(detail=True, url_path='subscribe')
+    def user_subscribe_add(self, request, id):
+        user = request.user
+        following = get_object_or_404(CustomUser, pk=id)
+        serializer = FollowCreateSerializer(
+            data={'user': user.id, 'following': id})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        follow = get_object_or_404(Follow, user=user, following=following)
+        serializer = UserFollowSerializer(follow.following,
+                                          context={'request': request})
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @user_subscribe_add.mapping.delete
+    def user_subscribe_del(self, request, id):
+        user = request.user
+        following = get_object_or_404(CustomUser, pk=id)
+        if not Follow.objects.filter(user=user,
+                                     following=following).exists():
+            return Response(['flw_user_none'],
+                            status=status.HTTP_400_BAD_REQUEST)
+        follow = Follow.objects.get(user=user, following=following)
+        follow.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(methods=['get'], detail=False, url_path='subscriptions',
+            permission_classes=[IsAuthenticated])
+    def user_subscriptions(self, request):
+        user = request.user
+        queryset = Follow.objects.filter(user=user)
+        pages = self.paginate_queryset(queryset)
+        serializer = FollowSerializer(
+            pages,
+            many=True,
+            context={'request': request}
+        )
+        return self.get_paginated_response(serializer.data)
 
 
 class TagView(viewsets.ReadOnlyModelViewSet):

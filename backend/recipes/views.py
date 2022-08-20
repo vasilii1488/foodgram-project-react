@@ -1,4 +1,4 @@
-from rest_framework.permissions import (IsAuthenticated, AllowAny,
+from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -6,13 +6,16 @@ from rest_framework.pagination import PageNumberPagination
 from users.serializers import CustomUserSerializer
 from users.models import CustomUser
 from .models import Tag, Ingredient, Recipe, Favorite, ShopList, Follow
-from .serializers import (TagSerializer, IngredientSerializer, FollowSerializer,
-                        RecipeSerializer, RecipesCreateSerializer, UserFollowSerializer,
-                        RecipeFollowSerializer,  FollowCreateSerializer) 
+from .serializers import (TagSerializer, IngredientSerializer,
+                          FollowSerializer,
+                          RecipeSerializer, RecipesCreateSerializer,
+                          UserFollowSerializer,
+                          RecipeFollowSerializer, FollowCreateSerializer)
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
-from rest_framework import mixins, status, viewsets
+from rest_framework import status, viewsets
 from djoser.views import UserViewSet
+
 
 class CustomUserViewSet(UserViewSet):
     """ Вьюсет для модели пользователя с дополнительным операциями
@@ -46,7 +49,7 @@ class CustomUserViewSet(UserViewSet):
         following = get_object_or_404(CustomUser, pk=id)
         if not Follow.objects.filter(user=user,
                                      following=following).exists():
-            return Response(['flw_user_none'],
+            return Response(['Вы не подписаны на этого пользователя'],
                             status=status.HTTP_400_BAD_REQUEST)
         follow = Follow.objects.get(user=user, following=following)
         follow.delete()
@@ -69,20 +72,21 @@ class CustomUserViewSet(UserViewSet):
 class TagView(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    permission_classes = [AllowAny, ]
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = None
 
 
 class IngredientView(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
-    permission_classes = [AllowAny, ]
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Ingredient.objects.all()
+    search_fields = ('^name',)
     pagination_class = None
 
 
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
-    permission_classes = [AllowAny, ]
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
@@ -91,7 +95,7 @@ class RecipeView(viewsets.ModelViewSet):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
             return RecipesCreateSerializer
         return RecipeSerializer
-    
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
@@ -111,7 +115,8 @@ class RecipeView(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, url_path='favorite', methods=['POST', 'GET'])
+    @action(detail=True, url_path='favorite', methods=['POST', 'GET'],
+            permission_classes=[IsAuthenticated])
     def recipe_id_favorite(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)
@@ -133,7 +138,8 @@ class RecipeView(viewsets.ModelViewSet):
         favorite.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @action(detail=True, url_path='shopping_cart', methods=['POST', 'GET'])
+    @action(detail=True, url_path='shopping_cart', methods=['POST', 'GET'],
+            permission_classes=[IsAuthenticated])
     def recipe_cart(self, request, pk):
         user = request.user
         recipe = get_object_or_404(Recipe, id=pk)

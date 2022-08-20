@@ -2,14 +2,13 @@ from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import Tag, Ingredient, Recipe, RecipeIngredient, Favorite, ShopList, Follow
-from django.conf import settings
-import requests
+from .models import (Tag, Ingredient, Recipe, RecipeIngredient,
+                     Favorite, ShopList, Follow)
 from rest_framework.validators import UniqueTogetherValidator
 
 
 class TagSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = Tag
         fields = ('__all__')
@@ -47,7 +46,8 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
         fields = (
@@ -55,7 +55,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             'is_favorited', 'is_in_shopping_cart',
             'name', 'image', 'text', 'cooking_time'
         )
-    
+
     def get_is_favorited(self, obj):
         if self.context['request'].user.is_authenticated:
             current_user = self.context['request'].user
@@ -79,15 +79,16 @@ class CreateIngredientRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = RecipeIngredient
         fields = ('id', 'amount')
-    
 
 
 class RecipesCreateSerializer(serializers.ModelSerializer):
     """ Сериализатор для создания объекторв модели Рецепты,
         с настроенными методами создания и обновления. """
+
     author = CustomUserSerializer(read_only=True)
     ingredients = CreateIngredientRecipeSerializer(many=True)
-  
+    image = Base64ImageField()
+
     class Meta:
         model = Recipe
         fields = (

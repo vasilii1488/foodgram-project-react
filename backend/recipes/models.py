@@ -1,4 +1,3 @@
-from tokenize import blank_re
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.conf import settings
@@ -54,13 +53,14 @@ class RecipeIngredient(models.Model):
 class Recipe(models.Model):
     """ Модель Рецепт. """
     tags = models.ManyToManyField(Tag, related_name='tags')
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL,
+                               on_delete=models.CASCADE)
     ingredients = models.ManyToManyField(RecipeIngredient,
                                          related_name='ingredients')
     is_favorited = models.BooleanField(default=False)
     is_in_shopping_cart = models.BooleanField(default=False)
     name = models.CharField(max_length=200)
-    image = models.ImageField(blank=True, null=True)
+    image = models.ImageField()
     text = models.TextField()
     cooking_time = models.PositiveSmallIntegerField(
         default=1,
@@ -75,9 +75,11 @@ class Recipe(models.Model):
 
 class Follow(models.Model):
     """ Модель для Подписок. """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='follower')
-    following = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    following = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                  on_delete=models.CASCADE,
                                   related_name='following')
 
     class Meta:
@@ -87,7 +89,8 @@ class Follow(models.Model):
 
 class Favorite(models.Model):
     """ Модель для Избранного. """
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE,
                              related_name='user')
     recipes = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                 related_name='favor')
@@ -100,7 +103,8 @@ class Favorite(models.Model):
 class ShopList(models.Model):
     """ Модель для Листа Покупок. """
 
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
                                  related_name='customer')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='cart_recipe')
@@ -108,5 +112,3 @@ class ShopList(models.Model):
     class Meta:
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
-
-

@@ -17,7 +17,7 @@ from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer, UserFollowSerializer)
-from .utils import dell, add_obj
+from .utils import remov_obj, add_obj
 
 
 class CustomUserViewSet(UserViewSet):
@@ -109,7 +109,7 @@ class RecipeView(viewsets.ModelViewSet):
     def recipe_id_favorite_del(self, request, pk):
         user = request.user
         model = Favorite
-        return dell(model=model, user=user, pk=pk)
+        return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
             permission_classes=[IsAuthenticated])
@@ -124,7 +124,7 @@ class RecipeView(viewsets.ModelViewSet):
     def recipe_cart_del(self, request, pk):
         user = request.user
         model = ShopList
-        return dell(model=model, user=user, pk=pk)
+        return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=False,
             url_path='download_shopping_cart',

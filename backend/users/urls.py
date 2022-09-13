@@ -6,4 +6,3 @@ urlpatterns = [
     path('auth/', include('djoser.urls.authtoken')),
     path('api-auth/', include('rest_framework.urls')),
 ]
-

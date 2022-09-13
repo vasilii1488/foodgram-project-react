@@ -1,5 +1,0 @@
-django==3.2.14
-djangorestframework==3.12.4
-djoser==2.1.0
-Pillow==9.2.0
-drf_extra_fields==3.4.0

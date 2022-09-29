@@ -61,7 +61,7 @@ jobs:
           script: |
           
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-backend
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram-frontend
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend
 
             sudo docker compose stop
             sudo docker container rm emarpoint-backend-1

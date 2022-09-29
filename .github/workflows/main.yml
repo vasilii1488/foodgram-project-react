@@ -64,7 +64,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/frontend
 
             sudo docker compose stop
-            sudo docker container rm emarpoint-backend-1
+            sudo docker container rm vasilii88-backend-1
             rm -f .env
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env

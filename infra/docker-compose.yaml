@@ -8,7 +8,7 @@ services:
       - ./.env
 
   backend:
-    image: vasilii88/backend:latest
+    image: vasilii88/backend
     restart: always
     volumes:
       - static_value:/backend/static/
@@ -19,7 +19,7 @@ services:
       - ./.env
 
   frontend:
-    image: vasilii88/frontend:latest          
+    image: vasilii88/frontend        
     volumes:
       - ../frontend/:/app/result_build/
       
@@ -45,3 +45,4 @@ volumes:
   postgres_data:
   static_value:
   media_value:
+  

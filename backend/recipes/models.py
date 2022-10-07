@@ -134,7 +134,7 @@ class Favorite(models.Model):
 class ShopList(models.Model):
     """ Модель для Листа Покупок. """
 
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
                                  on_delete=models.CASCADE,
                                  related_name='customer')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
@@ -145,5 +145,5 @@ class ShopList(models.Model):
         verbose_name_plural = 'Списки покупок'
         constraints = [
             models.UniqueConstraint(
-                fields=['customer', 'recipe'],
+                fields=['user', 'recipe'],
                 name='unique_customer_recipe')]

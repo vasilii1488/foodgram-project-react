@@ -133,7 +133,7 @@ class RecipeView(viewsets.ModelViewSet):
     def download_cart_recipe(self, request):
         """ Метод скачивания списка продуктов. """
         ingredients_list = RecipeIngredient.objects.filter(
-            recipe__favor__user=request.user
+            recipe__cart_recipe__user=request.user
         ).values('ingredient__name', 'ingredient__measurement_unit').order_by(
             'ingredient__name').annotate(tolal_sum=Sum('amount'))
         response = HttpResponse(ingredients_list, 'Content-Type: text/plain')

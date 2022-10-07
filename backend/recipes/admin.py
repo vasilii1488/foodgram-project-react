@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Ingredient, Recipe, Tag, RecipeIngredient
+from .models import Ingredient, Recipe, Tag, RecipeIngredient, ShopList
 
 
 class TagAdmin(admin.ModelAdmin):
@@ -21,7 +21,9 @@ class RecipesAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipesAdmin)
 admin.site.register(RecipeIngredient)
+admin.site.register(ShopList)

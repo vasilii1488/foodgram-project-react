@@ -11,7 +11,7 @@ def remov_obj(model, user, pk):
     if not model.objects.filter(user=user, recipe=recipe).exists():
         return Response('Рецепт отсутствует в избранном',
                         status=status.HTTP_400_BAD_REQUEST)
-    obj = model.objects.get(user=user, recipe__id=recipe)
+    obj = model.objects.get(user=user, recipe=recipe)
     obj.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 

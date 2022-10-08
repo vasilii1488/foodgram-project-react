@@ -5,7 +5,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Follow, Ingredient, Recipe, RecipeIngredient, Tag)
+from .models import (Follow, Ingredient, Recipe, 
+                     RecipeIngredient, Tag, ShopList)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -40,8 +41,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         required=True, source='ingredients_in_recipe',)
     tags = TagSerializer(many=True)
     image = Base64ImageField()
-    # is_favorited = serializers.SerializerMethodField()
-    # is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -51,19 +52,19 @@ class RecipeSerializer(serializers.ModelSerializer):
             'name', 'image', 'text', 'cooking_time'
         )
 
-    # def get_is_favorited(self, obj):
-    #     user = self.context.get('request').user
-    #     if user.is_anonymous:
-    #         return False
-    #     return Recipe.objects.filter(favor__user=user,
-    #                                  id=obj.id).exists()
+    def get_is_favorited(self, obj):
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Recipe.objects.filter(favor__user=user,
+                                     id=obj.id).exists()
 
-    # def get_is_in_shopping_cart(self, obj):
-    #     if self.context['request'].user.is_authenticated:
-    #         current_user = self.context['request'].user
-    #         return ShopList.objects.filter(user=current_user,
-    #                                        recipe=obj).exists()
-    #     return False
+    def get_is_in_shopping_cart(self, obj):
+        if self.context['request'].user.is_authenticated:
+            current_user = self.context['request'].user
+            return ShopList.objects.filter(user=current_user,
+                                           recipe=obj).exists()
+        return False
 
     def validate(self, data):
         if 'request' not in self.context:

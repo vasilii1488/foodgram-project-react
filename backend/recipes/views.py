@@ -89,27 +89,36 @@ class RecipeView(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
 
-    def get_serializer_class(self):
-        if self.request.method in ('POST', 'PUT', 'PATCH'):
-            return RecipesCreateSerializer
-        return RecipeSerializer
+    # def get_serializer_class(self):
+    #     if self.request.method in ('POST', 'PUT', 'PATCH'):
+    #         return RecipesCreateSerializer
+    #     return RecipeSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, url_path='favorite', methods=['POST'],
+    @action(detail=True, methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
-    def recipe_id_favorite(self, request, pk):
-        """ Метод добавления рецепта в избранное. """
-        user = request.user
-        model = Favorite
-        return add_obj(model=model, user=user, pk=pk)
+    def favorite(self, request, pk=None):
+        if request.method == 'GET':
+            return add_obj(Favorite, request.user, pk)
+        elif request.method == 'DELETE':
+            return remov_obj(Favorite, request.user, pk)
+        return None
+    
+    # @action(detail=True, url_path='favorite', methods=['POST'],
+    #         permission_classes=[IsAuthenticated])
+    # def recipe_id_favorite(self, request, pk):
+    #     """ Метод добавления рецепта в избранное. """
+    #     user = request.user
+    #     model = Favorite
+    #     return add_obj(model=model, user=user, pk=pk)
 
-    @recipe_id_favorite.mapping.delete
-    def recipe_id_favorite_del(self, request, pk):
-        user = request.user
-        model = Favorite
-        return remov_obj(model=model, user=user, pk=pk)
+    # @recipe_id_favorite.mapping.delete
+    # def recipe_id_favorite_del(self, request, pk):
+    #     user = request.user
+    #     model = Favorite
+    #     return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
             permission_classes=[IsAuthenticated])

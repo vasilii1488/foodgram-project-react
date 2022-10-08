@@ -15,7 +15,7 @@ from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
-                          RecipeSerializer,
+                          RecipeSerializer, RecipesCreateSerializer,
                           TagSerializer, UserFollowSerializer)
 from .utils import remov_obj, add_obj
 
@@ -89,10 +89,10 @@ class RecipeView(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
 
-    # def get_serializer_class(self):
-    #     if self.request.method in ('POST', 'PUT', 'PATCH'):
-    #         return RecipesCreateSerializer
-    #     return RecipeSerializer
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PUT', 'PATCH'):
+            return RecipesCreateSerializer
+        return RecipeSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

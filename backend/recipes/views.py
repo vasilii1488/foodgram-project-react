@@ -15,7 +15,7 @@ from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
-                          RecipesCreateSerializer, RecipeSerializer,
+                          RecipeSerializer,
                           TagSerializer, UserFollowSerializer)
 from .utils import remov_obj, add_obj
 
@@ -105,7 +105,7 @@ class RecipeView(viewsets.ModelViewSet):
         elif request.method == 'DELETE':
             return remov_obj(Favorite, request.user, pk)
         return None
-    
+
     # @action(detail=True, url_path='favorite', methods=['POST'],
     #         permission_classes=[IsAuthenticated])
     # def recipe_id_favorite(self, request, pk):

@@ -185,7 +185,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             }).data
 
 
-class RecipeFollowSerializer(RecipeSerializer):
+class RecipeFollowSerializer(serializers.Serializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """
 

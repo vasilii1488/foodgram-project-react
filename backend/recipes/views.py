@@ -104,20 +104,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    # @action(detail=True, url_path='favorite', methods=['POST'],
-    #         permission_classes=[IsAuthenticated]
-    #         )
-    # def recipe_id_favorite(self, request, pk):
-    #     """ Метод добавления рецепта в избранное. """
-    #     user = request.user
-    #     model = Favorite
-    #     return add_obj(model=model, user=user, pk=pk)
+    @action(detail=True, url_path='favorite', methods=['POST'],
+            permission_classes=[IsAuthenticated]
+            )
+    def recipe_id_favorite(self, request, pk):
+        """ Метод добавления рецепта в избранное. """
+        user = request.user
+        model = Favorite
+        return add_obj(model=model, user=user, pk=pk)
 
-    # @recipe_id_favorite.mapping.delete
-    # def recipe_id_favorite_del(self, request, pk):
-    #     user = request.user
-    #     model = Favorite
-    #     return remov_obj(model=model, user=user, pk=pk)
+    @recipe_id_favorite.mapping.delete
+    def recipe_id_favorite_del(self, request, pk):
+        user = request.user
+        model = Favorite
+        return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
             permission_classes=[])

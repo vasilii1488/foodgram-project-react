@@ -190,7 +190,7 @@ class RecipeFollowSerializer(RecipeSerializer):
         в подписках. """
 
     class Meta:
-        model = Recipe
+        model = Favorite
         fields = ('id', 'name', 'image', 'cooking_time')
 
 

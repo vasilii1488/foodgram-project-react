@@ -67,14 +67,15 @@ class CommonRecipe(metaclass=serializers.SerializerMetaclass):
                                            recipe__id=obj.id).exists()
 
 
-class RecipeSerializer(serializers.ModelSerializer):
+class RecipeSerializer(serializers.ModelSerializer, CommonRecipe):
     author = CustomUserSerializer(read_only=True)
     ingredients = RecipeIngredientSerializer(
         many=True,
         required=True, source='ingredients_in_recipe',)
     tags = TagSerializer(many=True)
     image = Base64ImageField()
-
+    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe

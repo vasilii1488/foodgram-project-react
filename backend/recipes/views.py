@@ -97,14 +97,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         The method of selecting the serializer depending on the request.
         """
         if self.request.method == 'GET':
-            return RecipesCreateSerializer
-        else:
             return RecipeSerializer
+        else:
+            return RecipesCreateSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, url_path='favorite', methods=['POST'],
+    @action(detail=True, url_path='favorite',
             permission_classes=[IsAuthenticated]
             )
     def recipe_id_favorite(self, request, pk):

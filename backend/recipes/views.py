@@ -9,6 +9,7 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from .permissions import IsOwnerOrReadOnly
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
 from .models import (Favorite, Follow, Ingredient, Recipe,
@@ -84,7 +85,8 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    # permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6

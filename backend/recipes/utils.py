@@ -16,8 +16,8 @@ from .serializers import RecipeFollowSerializer
 #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-def remov_obj(model, user, pk):
-    obj = model.objects.filter(user=user, recipe__id=pk)
+def remov_obj(model, request, pk):
+    obj = model.objects.filter(user=request.user, recipe__id=pk)
     if obj.exists():
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -26,11 +26,11 @@ def remov_obj(model, user, pk):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
-def add_obj(model, user, pk):
+def add_obj(model, request, pk):
     recipe = get_object_or_404(Recipe, id=pk)
-    if model.objects.filter(user=user, recipe__id=pk).exists():
+    if model.objects.filter(user=request.user, recipe__id=pk).exists():
         return Response('Рецепт добавлен в список',
                         status=status.HTTP_400_BAD_REQUEST)
-    obj = model.objects.create(user=user, recipe=recipe)
+    obj = model.objects.create(user=request.user, recipe=recipe)
     serializer = RecipeFollowSerializer(obj)
     return Response(serializer.data, status=status.HTTP_201_CREATED)

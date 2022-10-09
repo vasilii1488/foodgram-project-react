@@ -85,7 +85,6 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
-    # permission_classes = [IsOwnerOrReadOnly]
     permission_classes = (IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
@@ -100,7 +99,8 @@ class RecipeView(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsOwnerOrReadOnly]
+            )
     def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """
         user = request.user
@@ -114,7 +114,7 @@ class RecipeView(viewsets.ModelViewSet):
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            permission_classes=[IsAuthenticated])
+            permission_classes=[])
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """
 

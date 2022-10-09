@@ -92,9 +92,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly]
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PUT', 'PATCH'):
+        """
+        Метод выбора сериализатора в зависимости от запроса.
+        The method of selecting the serializer depending on the request.
+        """
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        else:
             return RecipesCreateSerializer
-        return RecipeSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

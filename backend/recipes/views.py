@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from .permissions import IsOwnerOrReadOnly
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Favorite, Follow, Ingredient, Recipe,
+from .models import (Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
@@ -98,20 +98,20 @@ class RecipeView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsOwnerOrReadOnly]
-            )
-    def recipe_id_favorite(self, request, pk):
-        """ Метод добавления рецепта в избранное. """
-        user = request.user
-        model = Favorite
-        return add_obj(model=model, user=user, pk=pk)
+    # @action(detail=True, url_path='favorite', methods=['POST'],
+    #         permission_classes=[IsOwnerOrReadOnly]
+    #         )
+    # def recipe_id_favorite(self, request, pk):
+    #     """ Метод добавления рецепта в избранное. """
+    #     user = request.user
+    #     model = Favorite
+    #     return add_obj(model=model, user=user, pk=pk)
 
-    @recipe_id_favorite.mapping.delete
-    def recipe_id_favorite_del(self, request, pk):
-        user = request.user
-        model = Favorite
-        return remov_obj(model=model, user=user, pk=pk)
+    # @recipe_id_favorite.mapping.delete
+    # def recipe_id_favorite_del(self, request, pk):
+    #     user = request.user
+    #     model = Favorite
+    #     return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
             permission_classes=[])

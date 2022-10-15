@@ -26,30 +26,44 @@ INSTALLED_APPS = [
     'recipes',
 ]
 
+# DJOSER = {
+#     'LOGIN_FIELD': 'email',
+#     'HIDE_USERS': False,
+#     'PASSWORD_REST_CONFIRM_URL': 'users/set_password/{uid}/{token}',
+#     'PERMISSIONS': {
+#         'activation': ['rest_framework.permissions.AllowAny'],
+#         'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
+#         'me': ['djoser.permissions.CurrentUserOrAdmin'],
+#         'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
+#         'username_reset': ['rest_framework.permissions.AllowAny'],
+#         'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
+#         'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
+#         'users_create': ['rest_framework.permissions.AllowAny'],
+#         'users_delete': ['djoser.permissions.CurrentUserOrAdmin'],
+#         'users': ['rest_framework.permissions.IsAuthenticated'],
+#         'users_list': ['rest_framework.permissions.AllowAny'],
+#         'token_create': ['rest_framework.permissions.AllowAny'],
+#         'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
+#     },
+#     'SERIALIZERS': {
+#         'user_create': 'users.serializers.UserCreateSerializer',
+#         'user': 'users.serializers.CustomUserSerializer',
+#         'current_user': 'users.serializers.CustomUserSerializer', 
+#         } 
+# }
+
 DJOSER = {
     'LOGIN_FIELD': 'email',
     'HIDE_USERS': False,
-    'PASSWORD_REST_CONFIRM_URL': 'users/set_password/{uid}/{token}',
-    'PERMISSIONS': {
-        'activation': ['rest_framework.permissions.AllowAny'],
-        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'me': ['djoser.permissions.CurrentUserOrAdmin'],
-        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
-        'username_reset': ['rest_framework.permissions.AllowAny'],
-        'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
-        'users_create': ['rest_framework.permissions.AllowAny'],
-        'users_delete': ['djoser.permissions.CurrentUserOrAdmin'],
-        'users': ['rest_framework.permissions.IsAuthenticated'],
-        'users_list': ['rest_framework.permissions.AllowAny'],
-        'token_create': ['rest_framework.permissions.AllowAny'],
-        'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
-    },
     'SERIALIZERS': {
-        'user_create': 'users.serializers.UserCreateSerializer',
+        'user_create': 'users.serializers.CustomUserCreateSerializer',
         'user': 'users.serializers.CustomUserSerializer',
-        'current_user': 'users.serializers.CustomUserSerializer', 
-        } 
+        'current_user': 'users.serializers.CustomUserSerializer',
+    },
+    'PERMISSIONS': {
+        'user': ('rest_framework.permissions.IsAuthenticated',),
+        'user_list': ('rest_framework.permissions.AllowAny',)
+    }
 }
 
 MIDDLEWARE = [
@@ -131,7 +145,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny', ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
     'DEFAULT_AUTHENTICATION_CLASSES': [

@@ -5,8 +5,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Follow, Ingredient, Recipe, Favorite,
-                     RecipeIngredient, Tag, ShopList)
+from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
+                     ShopList, Tag)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -41,8 +41,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         required=True, source='ingredients_in_recipe',)
     tags = TagSerializer(many=True)
     image = Base64ImageField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
@@ -55,14 +55,14 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_favorited(self, obj):
         if self.context['request'].user.is_authenticated:
             current_user = self.context['request'].user
-            return ShopList.objects.filter(user=current_user,
+            return Favorite.objects.filter(user=current_user,
                                            recipe=obj).exists()
         return False
 
     def get_is_in_shopping_cart(self, obj):
         if self.context['request'].user.is_authenticated:
             current_user = self.context['request'].user
-            return ShopList.objects.filter(user=current_user,
+            return ShopList.objects.filter(customer=current_user,
                                            recipe=obj).exists()
         return False
 
@@ -152,12 +152,12 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             }).data
 
 
-class RecipeFollowSerializer(serializers.Serializer):
+class RecipeFollowSerializer(RecipeSerializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """
 
     class Meta:
-        model = Favorite
+        model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 

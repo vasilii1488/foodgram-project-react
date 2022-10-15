@@ -9,14 +9,13 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from .permissions import IsOwnerOrReadOnly
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Follow, Ingredient, Recipe, Favorite,
+from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
-                          RecipeSerializer, RecipesCreateSerializer,
+                          RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer, UserFollowSerializer)
 from .utils import remov_obj, add_obj
 
@@ -83,30 +82,23 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
     pagination_class = None
 
 
-class RecipeViewSet(viewsets.ModelViewSet):
+class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
-    permission_classes = [IsOwnerOrReadOnly]
 
     def get_serializer_class(self):
-        """
-        Метод выбора сериализатора в зависимости от запроса.
-        The method of selecting the serializer depending on the request.
-        """
-        if self.request.method == 'GET':
-            return RecipeSerializer
-        else:
+        if self.request.method in ('POST', 'PUT', 'PATCH'):
             return RecipesCreateSerializer
+        return RecipeSerializer
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
     @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsAuthenticated]
-            )
+            permission_classes=[IsAuthenticated])
     def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """
         user = request.user
@@ -120,7 +112,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            permission_classes=[])
+            permission_classes=[IsAuthenticated])
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """
 
@@ -141,7 +133,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def download_cart_recipe(self, request):
         """ Метод скачивания списка продуктов. """
         ingredients_list = RecipeIngredient.objects.filter(
-            recipe__cart_recipe__user=request.user
+            recipe__favor__user=request.user
         ).values('ingredient__name', 'ingredient__measurement_unit').order_by(
             'ingredient__name').annotate(tolal_sum=Sum('amount'))
         response = HttpResponse(ingredients_list, 'Content-Type: text/plain')

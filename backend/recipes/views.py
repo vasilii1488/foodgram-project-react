@@ -17,7 +17,7 @@ from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer, UserFollowSerializer)
-from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from .permissions import IsAuthorOrAdminOrReadOnly
 from .utils import remov_obj, add_obj
 
 
@@ -77,7 +77,6 @@ class TagView(viewsets.ReadOnlyModelViewSet):
 
 class IngredientView(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     search_fields = ('^name',)
     pagination_class = None
@@ -85,7 +84,7 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
 
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = [IsAuthorOrAdminOrReadOnly]
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
@@ -99,7 +98,7 @@ class RecipeView(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
     @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsAuthenticated])
+            permission_classes=[IsAuthorOrAdminOrReadOnly])
     def recipe_id_favorite(self, request, pk=None):
         """ Метод добавления рецепта в избранное. """
         user = request.user

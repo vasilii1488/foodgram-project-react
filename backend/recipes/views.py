@@ -9,6 +9,7 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from .filters import AuthorAndTagFilter, IngredientSearchFilter
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
 from .models import (Favorite, Follow, Ingredient, Recipe,
@@ -80,6 +81,7 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     search_fields = ('^name',)
     pagination_class = None
+    filter_backends = (IngredientSearchFilter,)
 
 
 class RecipeView(viewsets.ModelViewSet):
@@ -88,6 +90,7 @@ class RecipeView(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
+    filter_class = (AuthorAndTagFilter,)
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):

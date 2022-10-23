@@ -11,11 +11,18 @@ class IngredientSearchFilter(SearchFilter):
 
 
 class AuthorAndTagFilter(django_filter.FilterSet):
-    tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
-    author = filters.ModelChoiceFilter(queryset=CustomUser.objects.all())
-    is_favorited = filters.BooleanFilter(method='filter_is_favorited')
-    is_in_shopping_cart = filters.BooleanFilter(
-        method='filter_is_in_shopping_cart')
+    author = django_filter.ModelChoiceFilter(queryset=CustomUser.objects.all())
+    tags = django_filter.AllValuesMultipleFilter(field_name='tags__slug')
+    is_favorited = django_filter.BooleanFilter(method='get_is_favorited')
+    is_in_shopping_cart = django_filter.BooleanFilter(
+        method='get_is_in_shopping_cart')
+
+    class Meta:
+        """
+        Мета параметры фильтров модели рецептов.
+        """
+        model = Recipe
+        fields = ('author', 'tags', 'is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, queryset, name, value):
         if value and not self.request.user.is_anonymous:

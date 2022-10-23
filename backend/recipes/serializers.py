@@ -161,6 +161,28 @@ class RecipeFollowSerializer(RecipeSerializer):
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
+class FavoriteSerializer(serializers.Serializer):
+    """
+    Создание сериализатора избранных рецептов.
+    Creating a serializer of selected recipes.
+    """
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(max_length=None, use_url=False,)
+
+
+class ShoppingCartSerializer(serializers.Serializer):
+    """
+    Создание сериализатора корзины.
+    Creating a bucket serializer.
+    """
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(max_length=None, use_url=False,)
+
+
 class UserFollowSerializer(CustomUserSerializer):
     """ Сериализатор модели Пользователя, для корректного отображения
         в подписках. """

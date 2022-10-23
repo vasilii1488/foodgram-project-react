@@ -10,6 +10,7 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from http import HTTPStatus
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .filters import AuthorAndTagFilter, IngredientSearchFilter
 from users.models import CustomUser
@@ -93,7 +94,8 @@ class RecipeView(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
-    filter_class = (AuthorAndTagFilter,)
+    filter_class = AuthorAndTagFilter
+    filter_backends = [DjangoFilterBackend, ]
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):

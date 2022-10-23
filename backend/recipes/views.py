@@ -8,6 +8,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
+from rest_framework import status, permissions
+from http import HTTPStatus
 
 from .filters import AuthorAndTagFilter, IngredientSearchFilter
 from users.models import CustomUser
@@ -15,11 +17,12 @@ from users.serializers import CustomUserSerializer
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
-                          IngredientSerializer,
+                          IngredientSerializer, FavoriteSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
-                          TagSerializer, UserFollowSerializer)
+                          TagSerializer, UserFollowSerializer,
+                          ShoppingCartSerializer, )
 from .permissions import IsAuthorOrAdminOrReadOnly
-from .utils import remov_obj, add_obj
+# from .utils import remov_obj, add_obj
 
 
 class CustomUserViewSet(UserViewSet):
@@ -100,34 +103,56 @@ class RecipeView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsAuthorOrAdminOrReadOnly])
-    def recipe_id_favorite(self, request, pk):
-        """ Метод добавления рецепта в избранное. """
-        user = request.user
-        model = Favorite
-        return add_obj(model=model, user=user, pk=pk)
 
-    @recipe_id_favorite.mapping.delete
-    def recipe_id_favorite_del(self, request, pk):
-        user = request.user
-        model = Favorite
-        return remov_obj(model=model, user=user, pk=pk)
+class BaseFavoriteCartViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
 
-    @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            permission_classes=[IsAuthenticated])
-    def recipe_cart(self, request, pk):
-        """ Метод добавления рецепта в список покупок. """
+    def create(self, request, *args, **kwargs):
+        """
+        Метод создания модели корзины или избранных рецептов.
+        A method for creating a basket model or selected recipes.
+        """
+        recipe_id = int(self.kwargs['recipes_id'])
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        if self.model.objects.filter(user=request.user,
+                                     recipe=recipe).exists():
+            return Response({
+                'errors': 'Рецепт уже добавлен в список'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        self.model.objects.create(user=request.user, recipe=recipe)
+        return Response(HTTPStatus.CREATED)
 
-        user = request.user
-        model = ShopList
-        return add_obj(model=model, user=user, pk=pk)
+    def delete(self, request, *args, **kwargs):
+        """
+        Метод удаления объектов модели корзины или избранных рецептов.
+        Method for deleting objects of the basket model or favorite recipes.
+        """
+        recipe_id = self.kwargs['recipes_id']
+        user_id = request.user.id
+        object = get_object_or_404(
+            self.model, user__id=user_id, recipe__id=recipe_id)
+        object.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-    @recipe_cart.mapping.delete
-    def recipe_cart_del(self, request, pk):
-        user = request.user
-        model = ShopList
-        return remov_obj(model=model, user=user, pk=pk)
+
+class ShoppingCartViewSet(BaseFavoriteCartViewSet):
+    """
+    Вьюсет обработки модели корзины.
+    Basket model processing viewset.
+    """
+    serializer_class = ShoppingCartSerializer
+    queryset = ShopList.objects.all()
+    model = ShopList
+
+
+class FavoriteViewSet(BaseFavoriteCartViewSet):
+    """
+    Вьюсет обработки модели избранных рецептов.
+    The viewset for processing the model of selected recipes.
+    """
+    serializer_class = FavoriteSerializer
+    queryset = Favorite.objects.all()
+    model = Favorite
 
     @action(detail=False,
             url_path='download_shopping_cart',

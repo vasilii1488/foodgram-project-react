@@ -5,8 +5,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Follow, Ingredient, Recipe, RecipeIngredient,
-                     Tag)
+from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
+                     Tag, ShopList)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -56,15 +56,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False
-        return Recipe.objects.filter(author=request.user,
-                                           favor__id=obj.id).exists()
+        return Favorite.objects.filter(user=request.user,
+                                       recipe__id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         if request.user.is_anonymous:
             return False                                          
-        return Recipe.objects.filter(author=request.user,
-                                           cart_recipe__id=obj.id).exists()
+        return ShopList.objects.filter(user=request.user,
+                                       recipe__id=obj.id).exists()
 
     def validate(self, data):
         if 'request' not in self.context:
@@ -152,7 +152,7 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             }).data
 
 
-class RecipeFollowSerializer(RecipeSerializer):
+class RecipeFollowSerializer(serializers.ModelSerializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """
 
@@ -164,7 +164,6 @@ class RecipeFollowSerializer(RecipeSerializer):
 class FavoriteSerializer(serializers.Serializer):
     """
     Создание сериализатора избранных рецептов.
-    Creating a serializer of selected recipes.
     """
     id = serializers.IntegerField()
     name = serializers.CharField()

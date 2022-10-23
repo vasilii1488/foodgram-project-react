@@ -102,7 +102,7 @@ class RecipeView(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='favorite', methods=['POST'],
             permission_classes=[IsAuthorOrAdminOrReadOnly])
-    def recipe_id_favorite(self, request, pk=None):
+    def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """
         user = request.user
         model = Favorite

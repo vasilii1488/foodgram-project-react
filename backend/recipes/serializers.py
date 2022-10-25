@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
@@ -182,18 +181,6 @@ class ShoppingCartSerializer(serializers.Serializer):
     image = Base64ImageField(max_length=None, use_url=False,)
 
 
-class UserFollowSerializer(CustomUserSerializer):
-    """ Сериализатор модели Пользователя, для корректного отображения
-        в подписках. """
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
-
-    class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed', 'recipes', 'recipes_count')
-        model = CustomUser
-
-
 class FollowSerializer(serializers.ModelSerializer):
     """ Создаем сериализатор для подписок. """
 
@@ -209,43 +196,48 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
-        model = Follow
+        model = CustomUser
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(
-            user=obj.user, following=obj.following
-        ).exists()
+        request = self.context.get('request')
+        if request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=request.user,
+                                        following__id=obj.id).exists()
 
     def get_recipes(self, obj):
-        request = self.context['request']
-        limit = request.GET.get('recipes_limit')
-        queryset = Recipe.objects.filter(author=obj.following)
-        if limit:
-            queryset = queryset[:int(limit)]
+        request = self.context.get('request')
+        if request.GET.get('recipes_limit'):
+            recipes_limit = int(request.GET.get('recipes_limit'))
+            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')[
+                :recipes_limit]
+        else:
+            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')
         return RecipeFollowSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.following).count()
+        return Recipe.objects.filter(author__id=obj.id).count()
 
 
-class FollowCreateSerializer(serializers.ModelSerializer):
-    """ Сериализатор создания объекта Подписки. """
 
-    class Meta:
-        fields = ('user', 'following')
-        model = Follow
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=['user', 'following'],
-                message=['user_in_flw']
-            )
-        ]
+# class FollowCreateSerializer(serializers.ModelSerializer):
+#     """ Сериализатор создания объекта Подписки. """
 
-    def validate(self, data):
-        user = data['user']
-        current_follow = data['following']
-        if user == current_follow:
-            raise serializers.ValidationError(
-                ['flw_self'])
-        return data
+#     class Meta:
+#         fields = ('user', 'following')
+#         model = Follow
+#         validators = [
+#             UniqueTogetherValidator(
+#                 queryset=Follow.objects.all(),
+#                 fields=['user', 'following'],
+#                 message=['user_in_flw']
+#             )
+#         ]
+
+#     def validate(self, data):
+#         user = data['user']
+#         current_follow = data['following']
+#         if user == current_follow:
+#             raise serializers.ValidationError(
+#                 ['flw_self'])
+#         return data

@@ -35,6 +35,7 @@ class CustomUserViewSet(UserViewSet):
     def get_queryset(self):
         return CustomUser.objects.all()
 
+
 class TagView(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()

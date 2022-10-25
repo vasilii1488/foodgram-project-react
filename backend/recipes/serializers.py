@@ -181,6 +181,24 @@ class ShoppingCartSerializer(serializers.Serializer):
     image = Base64ImageField(max_length=None, use_url=False,)
 
 
+class RecipeMinifieldSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для упрощенного отображения модели рецептов.
+    Sterilizer for simplified display of the recipe model.
+    """
+    image = Base64ImageField()
+
+    class Meta:
+        """
+        Мета параметры сериализатора упрощенного
+        отображения модели рецептов.
+        Metaparameters of the simplified serializer
+        displaying the recipe model.
+        """
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time', 'image')
+
+
 class FollowSerializer(serializers.ModelSerializer):
     """ Создаем сериализатор для подписок. """
 
@@ -213,7 +231,7 @@ class FollowSerializer(serializers.ModelSerializer):
                 :recipes_limit]
         else:
             queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')
-        return RecipeFollowSerializer(queryset, many=True).data
+        return RecipeMinifieldSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author__id=obj.id).count()

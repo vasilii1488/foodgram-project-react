@@ -19,7 +19,7 @@ from users.serializers import CustomUserSerializer
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowSerializer,
-                          IngredientSerializer, FavoriteSerializer,
+                          IngredientSerializer, FavoriteSerializer, RecipeFollowSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer, ShoppingCartSerializer, )
 from .permissions import IsAuthorOrAdminOrReadOnly
@@ -115,7 +115,7 @@ class FavoriteViewSet(BaseFavoriteCartViewSet):
     Вьюсет обработки модели избранных рецептов.
     The viewset for processing the model of selected recipes.
     """
-    serializer_class = FavoriteSerializer
+    serializer_class = RecipeFollowSerializer
     queryset = Favorite.objects.all()
     model = Favorite
 

@@ -84,7 +84,7 @@ class BaseFavoriteCartViewSet(viewsets.ModelViewSet):
             return Response({
                 'errors': 'Рецепт уже добавлен в список'
             }, status=status.HTTP_400_BAD_REQUEST)
-        self.model.objects.create(recipe__favor__user=request.user, recipe=recipe)
+        self.model.objects.create(user=request.user, recipe=recipe)
         return Response(HTTPStatus.CREATED)
 
     def delete(self, request, *args, **kwargs):

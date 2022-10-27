@@ -85,7 +85,8 @@ class BaseFavoriteCartViewSet(viewsets.ModelViewSet):
                 'errors': 'Рецепт уже добавлен в список'
             }, status=status.HTTP_400_BAD_REQUEST)
         self.model.objects.create(user=request.user, recipe=recipe)
-        return Response(HTTPStatus.CREATED)
+        serializer = FavoriteSerializer(recipe)
+        return Response(serializer.data, HTTPStatus.CREATED)
 
     def delete(self, request, *args, **kwargs):
         """
@@ -108,7 +109,6 @@ class ShoppingCartViewSet(BaseFavoriteCartViewSet):
     serializer_class = ShoppingCartSerializer
     queryset = ShopList.objects.all()
     model = ShopList
-
 
 class FavoriteViewSet(BaseFavoriteCartViewSet):
     """

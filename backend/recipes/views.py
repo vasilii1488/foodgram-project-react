@@ -19,7 +19,7 @@ from users.serializers import CustomUserSerializer
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowSerializer,
-                          IngredientSerializer, FavoriteSerializer, RecipeFollowSerializer,
+                          IngredientSerializer, RecipeFollowSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer, ShoppingCartSerializer, )
 from .permissions import IsAuthorOrAdminOrReadOnly

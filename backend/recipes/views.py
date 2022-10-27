@@ -110,6 +110,7 @@ class ShoppingCartViewSet(BaseFavoriteCartViewSet):
     queryset = ShopList.objects.all()
     model = ShopList
 
+
 class FavoriteViewSet(BaseFavoriteCartViewSet):
     """
     Вьюсет обработки модели избранных рецептов.

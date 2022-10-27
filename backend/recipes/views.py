@@ -70,7 +70,7 @@ class RecipeView(viewsets.ModelViewSet):
 
 
 class BaseFavoriteCartViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthorOrAdminOrReadOnly]
 
     def create(self, request, *args, **kwargs):
         """

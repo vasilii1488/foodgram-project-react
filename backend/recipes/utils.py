@@ -6,7 +6,7 @@ from .models import Recipe
 from .serializers import RecipeFollowSerializer
 
 
-def remov_obj(self, model, user, pk):
+def remov_obj(model, user, pk):
     obj = model.objects.filter(user=user, recipe__id=pk)
     if obj.exists():
         obj.delete()
@@ -16,7 +16,7 @@ def remov_obj(self, model, user, pk):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
-def add_obj(self, model, user, pk):
+def add_obj(model, user, pk):
     recipe = get_object_or_404(Recipe, id=pk)
     if model.objects.filter(user=user, recipe__id=pk).exists():
         return Response('Рецепт добавлен в список',

@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
+from .filters import AuthorAndTagFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
@@ -88,6 +89,7 @@ class RecipeView(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
+    filter_class = AuthorAndTagFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):

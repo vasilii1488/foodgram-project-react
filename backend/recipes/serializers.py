@@ -5,8 +5,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Favorite, Follow, Ingredient, Recipe, RecipeIngredient,
-                     ShopList, Tag)
+from .models import (Follow, Ingredient, Recipe, RecipeIngredient,
+                     Tag)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -53,18 +53,17 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        if self.context['request'].user.is_authenticated:
-            current_user = self.context['request'].user
-            return Favorite.objects.filter(user=current_user,
-                                           recipe=obj).exists()
-        return False
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Recipe.objects.filter(favor__user=user, id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
-        if self.context['request'].user.is_authenticated:
-            current_user = self.context['request'].user
-            return ShopList.objects.filter(customer=current_user,
-                                           recipe=obj).exists()
-        return False
+        user = self.context.get('request').user
+        if user.is_anonymous:
+            return False
+        return Recipe.objects.filter(cart_recipe__user=user,
+                                     id=obj.id).exists()
 
     def validate(self, data):
         if 'request' not in self.context:

@@ -118,7 +118,7 @@ class Favorite(models.Model):
     """ Модель для Избранного. """
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                              on_delete=models.CASCADE,
-                             related_name='user')
+                             related_name='favor')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='favor')
 
@@ -136,7 +136,7 @@ class ShopList(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
                                  on_delete=models.CASCADE,
-                                 related_name='customer')
+                                 related_name='cart_recipe')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='cart_recipe')
 

@@ -1,19 +1,21 @@
-from django_filters import rest_framework as django_filter
+from django_filters.rest_framework import filters
 from rest_framework.filters import SearchFilter
 
-from .models import Recipe
-from users.models import CustomUser
+from .models import Recipe, Tag
 
 
 class IngredientSearchFilter(SearchFilter):
     search_param = 'name'
 
 
-class AuthorAndTagFilter(django_filter.FilterSet):
-    author = django_filter.ModelChoiceFilter(queryset=CustomUser.objects.all())
-    tags = django_filter.AllValuesMultipleFilter(field_name='tags__slug')
-    is_favorited = django_filter.BooleanFilter(method='get_is_favorited')
-    is_in_shopping_cart = django_filter.BooleanFilter(
+class AuthorAndTagFilter(filters.FilterSet):
+    tags = filters.ModelMultipleChoiceFilter(
+        field_name='tags__slug',
+        queryset=Tag.objects.all(),
+        to_field_name='slug',
+    )
+    is_favorited = filters.BooleanFilter(method='get_is_favorited')
+    is_in_shopping_cart = filters.BooleanFilter(
         method='get_is_in_shopping_cart')
 
     class Meta:

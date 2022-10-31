@@ -10,9 +10,10 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 import django_filters.rest_framework
 
+from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .filters import AuthorAndTagFilter
+from .filters import AuthorAndTagFilter, IngredientSearchFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
@@ -72,7 +73,7 @@ class CustomUserViewSet(UserViewSet):
 class TagView(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     pagination_class = None
 
 
@@ -80,13 +81,14 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Ingredient.objects.all()
+    filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
     pagination_class = None
 
 
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = [IsOwnerOrReadOnly]
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
@@ -103,7 +105,7 @@ class RecipeView(viewsets.ModelViewSet):
         context.update({'request': self.request})
         return context
 
-    @action(detail=True, url_path='favorite', methods=['POST', 'DELETE'],
+    @action(detail=True, url_path='favorite', methods=['POST'],
             permission_classes=[IsAuthenticated])
     def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """

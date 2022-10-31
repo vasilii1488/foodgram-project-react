@@ -105,6 +105,9 @@ class RecipeView(viewsets.ModelViewSet):
         context.update({'request': self.request})
         return context
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+    
     @action(detail=True, url_path='favorite', methods=['POST'],
             permission_classes=[IsAuthenticated])
     def recipe_id_favorite(self, request, pk):

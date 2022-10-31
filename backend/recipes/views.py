@@ -98,15 +98,12 @@ class RecipeView(viewsets.ModelViewSet):
             return RecipesCreateSerializer
         return RecipeSerializer
 
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context.update({'request': self.request})
         return context
 
-    @action(detail=True, url_path='favorite', methods=['POST'],
+    @action(detail=True, url_path='favorite', methods=['POST', 'DELETE'],
             permission_classes=[IsAuthenticated])
     def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """

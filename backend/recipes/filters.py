@@ -8,7 +8,7 @@ class IngredientSearchFilter(SearchFilter):
     search_param = 'name'
 
 
-class AuthorAndTagFilter(filters.FilterSet):
+class AuthorAndTagFilter(filters.Filter):
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         queryset=Tag.objects.all(),

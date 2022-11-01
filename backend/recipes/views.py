@@ -28,7 +28,8 @@ User = get_user_model()
 class CustomUserViewSet(UserViewSet):
     pagination_class = PageNumberPagination
 
-    @action(detail=True, permission_classes=[IsAuthenticated])
+    @action(detail=True, permission_classes=[IsAuthenticated],
+            methods=['POST'])
     def subscribe(self, request, id=None):
         user = request.user
         author = get_object_or_404(User, id=id)

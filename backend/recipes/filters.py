@@ -1,4 +1,4 @@
-from django_filters.rest_framework import filters
+from django_filters.rest_framework import filters, FilterSet
 from rest_framework.filters import SearchFilter
 
 from .models import Recipe, Tag
@@ -8,7 +8,7 @@ class IngredientSearchFilter(SearchFilter):
     search_param = 'name'
 
 
-class AuthorAndTagFilter(filters.Filter):
+class AuthorAndTagFilter(FilterSet):
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         queryset=Tag.objects.all(),

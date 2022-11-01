@@ -1,5 +1,6 @@
 from django.db.models import Sum
 from django.http.response import HttpResponse
+from django.contrib.auth import get_user_model
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -11,7 +12,6 @@ from rest_framework.response import Response
 import django_filters.rest_framework
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
-from users.models import CustomUser
 from users.serializers import CustomUserSerializer
 from .filters import AuthorAndTagFilter, IngredientSearchFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
@@ -23,18 +23,21 @@ from .serializers import (FollowCreateSerializer, FollowSerializer,
 from .utils import remov_obj, add_obj
 
 
+User = get_user_model()
+
+
 class CustomUserViewSet(UserViewSet):
     """ Вьюсет для модели пользователя с дополнительным операциями
         через GET запросы. """
 
-    queryset = CustomUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = PageNumberPagination
 
     @action(detail=True, url_path='subscribe')
     def user_subscribe_add(self, request, id):
         user = request.user
-        following = get_object_or_404(CustomUser, pk=id)
+        following = get_object_or_404(User, pk=id)
         serializer = FollowCreateSerializer(
             data={'user': user.id, 'following': id})
         serializer.is_valid(raise_exception=True)
@@ -47,7 +50,7 @@ class CustomUserViewSet(UserViewSet):
     @user_subscribe_add.mapping.delete
     def user_subscribe_del(self, request, id):
         user = request.user
-        following = get_object_or_404(CustomUser, pk=id)
+        following = get_object_or_404(User, pk=id)
         if not Follow.objects.filter(user=user,
                                      following=following).exists():
             return Response(['Вы не подписаны на этого пользователя'],

@@ -3,7 +3,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .models import Recipe
-from .serializers import FavoriteSerializer
 
 
 def remov_obj(model, user, pk):
@@ -16,11 +15,11 @@ def remov_obj(model, user, pk):
     }, status=status.HTTP_400_BAD_REQUEST)
 
 
-def add_obj(model, user, pk):
+def add_obj(pk, model, user):
+    if model.objects.filter(user=user, recipe__id=pk).exists():
+        return Response({
+            'errors': 'Рецепт уже добавлен в список'
+        }, status=status.HTTP_400_BAD_REQUEST)
     recipe = get_object_or_404(Recipe, id=pk)
-    if model.objects.filter(user=user, recipe=recipe).exists():
-        return Response('Рецепт добавлен в список',
-                        status=status.HTTP_400_BAD_REQUEST)
-    obj = model.objects.create(user=user, recipe=recipe)
-    serializer = FavoriteSerializer(obj.recipe)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+    model.objects.create(user=user, recipe=recipe)
+    return Response(status=status.HTTP_201_CREATED)

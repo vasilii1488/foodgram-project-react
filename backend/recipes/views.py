@@ -136,7 +136,6 @@ class RecipeView(viewsets.ModelViewSet):
             permission_classes=[IsAuthenticated])
     def recipe_cart(self, request, pk=None):
         """ Метод добавления рецепта в список покупок. """
-
         user = request.user
         model = ShopList
         return add_obj(model=model, user=user, pk=pk)

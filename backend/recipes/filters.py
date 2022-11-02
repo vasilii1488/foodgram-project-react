@@ -40,4 +40,3 @@ class AuthorAndTagFilter(filters.FilterSet):
         if value and not self.request.user.is_anonymous:
             return queryset.filter(recipe__cart_recipe__user_id=self.request.user)
         return queryset
-

@@ -7,7 +7,7 @@ from .serializers import FavoriteSerializer
 
 
 def remov_obj(model, user, pk):
-    obj = model.objects.filter(user__id=user, recipe__id=pk)
+    obj = model.objects.filter(user=user, recipe__id=pk)
     if obj.exists():
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -21,6 +21,6 @@ def add_obj(model, user, pk):
     if model.objects.filter(user=user, recipe__id=pk).exists():
         return Response('Рецепт добавлен в список',
                         status=status.HTTP_400_BAD_REQUEST)
-    model.objects.create(user__id=user, recipe__id=recipe)
+    model.objects.create(user=user, recipe=recipe)
     serializer = FavoriteSerializer(recipe)
     return Response(serializer.data, status=status.HTTP_201_CREATED)

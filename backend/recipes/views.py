@@ -134,7 +134,7 @@ class RecipeView(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
             permission_classes=[IsAuthenticated])
-    def recipe_cart(self, request, pk):
+    def recipe_cart(self, request, pk=None):
         """ Метод добавления рецепта в список покупок. """
 
         user = request.user

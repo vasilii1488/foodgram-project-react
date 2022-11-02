@@ -55,14 +55,14 @@ class RecipeSerializer(serializers.ModelSerializer):
         if user.is_anonymous:
             return False
         return Recipe.objects.filter(favor__user_id=user.id, 
-                                     favor__recipe_id=obj.id).exists()
+                                     id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
         return Recipe.objects.filter(cart_recipe__user=user,
-                                     cart_recipe__id=obj.id).exists()
+                                     id=obj.id).exists()
 
     def validate(self, data):
         if 'request' not in self.context:
@@ -150,13 +150,14 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             }).data
 
 
-class RecipeFollowSerializer(RecipeSerializer):
+class RecipeFollowSerializer(serializers.ModelSerializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+        read_only_fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class UserFollowSerializer(CustomUserSerializer):
@@ -201,14 +202,3 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()
-
-
-class FavoriteSerializer(serializers.Serializer):
-    """
-    Создание сериализатора избранных рецептов.
-    Creating a serializer of selected recipes.
-    """
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)

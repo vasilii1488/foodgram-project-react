@@ -9,7 +9,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-import django_filters.rest_framework
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .filters import AuthorAndTagFilter, IngredientSearchFilter
@@ -101,18 +100,12 @@ class RecipeView(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
-    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filter_class = AuthorAndTagFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
             return RecipesCreateSerializer
         return RecipeSerializer
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({'request': self.request})
-        return context
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

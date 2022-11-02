@@ -21,6 +21,6 @@ def add_obj(model, user, pk):
     if model.objects.filter(user=user, recipe__id=pk).exists():
         return Response('Рецепт добавлен в список',
                         status=status.HTTP_400_BAD_REQUEST)
-    model.objects.create(user=user, recipe=recipe)
+    model.objects.create(user__id=user, recipe__id=recipe)
     serializer = RecipeFollowSerializer(recipe)
     return Response(serializer.data, status=status.HTTP_201_CREATED)

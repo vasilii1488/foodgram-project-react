@@ -18,9 +18,9 @@ def remov_obj(model, user, pk):
 
 def add_obj(model, user, pk):
     recipe = get_object_or_404(Recipe, id=pk)
-    if model.objects.filter(user=user, recipe__id=pk).exists():
+    if model.objects.filter(user=user, recipe=recipe).exists():
         return Response('Рецепт добавлен в список',
                         status=status.HTTP_400_BAD_REQUEST)
-    model.objects.create(user=user, recipe=recipe)
-    serializer = FavoriteSerializer(recipe)
+    obj = model.objects.create(user=user, recipe=recipe)
+    serializer = FavoriteSerializer(obj.recipe)
     return Response(serializer.data, status=status.HTTP_201_CREATED)

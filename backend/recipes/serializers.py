@@ -201,3 +201,14 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.author).count()
+
+
+class FavoriteSerializer(serializers.Serializer):
+    """
+    Создание сериализатора избранных рецептов.
+    Creating a serializer of selected recipes.
+    """
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    cooking_time = serializers.IntegerField()
+    image = Base64ImageField(max_length=None, use_url=False,)

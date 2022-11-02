@@ -113,7 +113,7 @@ class RecipeView(viewsets.ModelViewSet):
 
     @action(detail=True, url_path='favorite', methods=['POST'],
             permission_classes=[IsOwnerOrReadOnly])
-    def recipe_id_favorite(self, request, pk=None):
+    def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """
         user = request.user
         model = Favorite
@@ -126,8 +126,8 @@ class RecipeView(viewsets.ModelViewSet):
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            permission_classes=[IsAuthenticated])
-    def recipe_cart(self, request, pk=None):
+            permission_classes=[IsOwnerOrReadOnly])
+    def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """
         user = request.user
         model = ShopList

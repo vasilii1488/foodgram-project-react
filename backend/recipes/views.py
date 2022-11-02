@@ -111,7 +111,7 @@ class RecipeView(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-    @action(detail=True, url_path='favorites', methods=['POST'],
+    @action(detail=True, url_path='favorite', methods=['POST'],
             permission_classes=[IsOwnerOrReadOnly])
     def recipe_id_favorite(self, request, pk=None):
         """ Метод добавления рецепта в избранное. """

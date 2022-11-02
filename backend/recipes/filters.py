@@ -41,6 +41,3 @@ class AuthorAndTagFilter(filters.FilterSet):
             return queryset.filter(cart_recipe__user_id=self.request.user)
         return queryset
 
-    class Meta:
-        model = Recipe
-        fields = ('tags', 'author')

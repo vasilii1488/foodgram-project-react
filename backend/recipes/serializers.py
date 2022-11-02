@@ -1,12 +1,10 @@
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .models import (Follow, Ingredient, Recipe, RecipeIngredient,
-                     Tag)
+
+from .models import Follow, Ingredient, Recipe, RecipeIngredient, Tag
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -56,14 +54,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Recipe.objects.filter(favor__user=user, id=obj.id).exists()
+        return Recipe.objects.filter(favor__user_id=user.id, 
+                                     favor__recipe_id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
         return Recipe.objects.filter(cart_recipe__user=user,
-                                     id=obj.id).exists()
+                                     cart_recipe__id=obj.id).exists()
 
     def validate(self, data):
         if 'request' not in self.context:
@@ -173,57 +172,32 @@ class UserFollowSerializer(CustomUserSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    """ Создаем сериализатор для подписок. """
-
-    email = serializers.ReadOnlyField(source='following.email')
-    id = serializers.ReadOnlyField(source='following.id')
-    username = serializers.ReadOnlyField(source='following.email')
-    first_name = serializers.ReadOnlyField(source='following.first_name')
-    last_name = serializers.ReadOnlyField(source='following.last_name')
+    id = serializers.ReadOnlyField(source='author.id')
+    email = serializers.ReadOnlyField(source='author.email')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed', 'recipes', 'recipes_count')
         model = Follow
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')
 
     def get_is_subscribed(self, obj):
         return Follow.objects.filter(
-            user=obj.user, following=obj.following
+            user=obj.user, author=obj.author
         ).exists()
 
     def get_recipes(self, obj):
-        request = self.context['request']
+        request = self.context.get('request')
         limit = request.GET.get('recipes_limit')
-        queryset = Recipe.objects.filter(author=obj.following)
+        queryset = Recipe.objects.filter(author=obj.author)
         if limit:
             queryset = queryset[:int(limit)]
         return RecipeFollowSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.following).count()
-
-
-class FollowCreateSerializer(serializers.ModelSerializer):
-    """ Сериализатор создания объекта Подписки. """
-
-    class Meta:
-        fields = ('user', 'following')
-        model = Follow
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=['user', 'following'],
-                message=['user_in_flw']
-            )
-        ]
-
-    def validate(self, data):
-        user = data['user']
-        current_follow = data['following']
-        if user == current_follow:
-            raise serializers.ValidationError(
-                ['flw_self'])
-        return data
+        return Recipe.objects.filter(author=obj.author).count()

@@ -32,11 +32,11 @@ class AuthorAndTagFilter(filters.FilterSet):
     def get_is_favorited(self, queryset, name, value):
         queryset = Favorite.objects.all()
         if value and not self.request.user.is_anonymous:
-            return queryset.filter(recipe__favor__user_id=self.request.user)
+            return queryset.filter(recipes__favor__user_id=self.request.user)
         return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
         queryset = ShopList.objects.all()
         if value and not self.request.user.is_anonymous:
-            return queryset.filter(recipe__cart_recipe__user_id=self.request.user)
+            return queryset.filter(recipes__cart_recipe__user_id=self.request.user)
         return queryset

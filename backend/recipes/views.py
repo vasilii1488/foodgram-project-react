@@ -111,7 +111,7 @@ class RecipeView(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-    @action(detail=True, url_path='favorite', methods=['POST'],
+    @action(detail=True, url_path='favorite', methods=['GET'],
             permission_classes=[IsOwnerOrReadOnly])
     def recipe_id_favorite(self, request, pk):
         """ Метод добавления рецепта в избранное. """
@@ -125,7 +125,7 @@ class RecipeView(viewsets.ModelViewSet):
         model = Favorite
         return remov_obj(model=model, user=user, pk=pk)
 
-    @action(detail=True, url_path='shopping_cart', methods=['POST'],
+    @action(detail=True, url_path='shopping_cart', methods=['GET'],
             permission_classes=[IsOwnerOrReadOnly])
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """

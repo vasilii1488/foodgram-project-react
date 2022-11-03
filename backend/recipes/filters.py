@@ -5,7 +5,7 @@ from users.models import CustomUser
 from recipes.models import Recipe, Favorite, ShopList
 
 
-class RecipeFilters(django_filter.FilterSet):
+class AuthorAndTagFilter(django_filter.FilterSet):
     """
     Настройка фильтров модели рецептов.
     """

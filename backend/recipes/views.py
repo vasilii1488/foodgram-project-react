@@ -83,7 +83,6 @@ class TagView(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = None
-    filter_class = AuthorAndTagFilter
 
 
 class IngredientView(viewsets.ReadOnlyModelViewSet):
@@ -101,7 +100,7 @@ class RecipeView(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
-    filter_class = AuthorAndTagFilter
+    filter_class = (AuthorAndTagFilter,)
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):

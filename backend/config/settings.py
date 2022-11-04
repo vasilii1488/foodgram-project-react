@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['*', 'localhost', '51.250.103.1']
+ALLOWED_HOSTS = ['*', 'localhost']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -19,12 +19,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
     'users',
     'recipes',
-    'django_filters',
 ]
 
 DJOSER = {
@@ -34,15 +34,14 @@ DJOSER = {
     'PERMISSIONS': {
         'activation': ['rest_framework.permissions.AllowAny'],
         'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
-        'me': ['djoser.permissions.CurrentUserOrAdmin'],
         'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
         'username_reset': ['rest_framework.permissions.AllowAny'],
         'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
         'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
-        'users_create': ['rest_framework.permissions.AllowAny'],
-        'users_delete': ['djoser.permissions.CurrentUserOrAdmin'],
-        'users': ['rest_framework.permissions.IsAuthenticated'],
-        'users_list': ['rest_framework.permissions.AllowAny'],
+        'user_create': ['rest_framework.permissions.AllowAny'],
+        'user_delete': ['djoser.permissions.CurrentUserOrAdmin'],
+        'user': ['rest_framework.permissions.IsAuthenticated'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
         'token_create': ['rest_framework.permissions.AllowAny'],
         'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
     },
@@ -52,7 +51,6 @@ DJOSER = {
         'current_user': 'users.serializers.CustomUserSerializer', 
         } 
 }
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -87,14 +85,15 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE'),
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': os.getenv('DB_PORT'),
+        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': os.getenv('DB_NAME', default='postgres'),
+        'USER': os.getenv('POSTGRES_USER', default='postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', default='postgres'),
+        'HOST': os.getenv('DB_HOST', default='db'),
+        'PORT': os.getenv('DB_PORT', default='5432'),
     }
 }
+
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -133,15 +132,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
-    ],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny', ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
-    'DEFAULT_FILTER_BACKENDS': [
-        'django_filters.rest_framework.DjangoFilterBackend'],
 }

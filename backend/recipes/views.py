@@ -107,14 +107,13 @@ class RecipeView(viewsets.ModelViewSet):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
             return RecipesCreateSerializer
         return RecipeSerializer
-    
+
     def get_queryset(self):
         queryset = Recipe.objects.all()
         # tags = self.request.query_params.get('tags')
         author = self.request.query_params.get('author')
         if author is not None:
-            queryset = queryset.filter(
-                                       author__username=author)
+            queryset = queryset.filter(author__username=author)
         return queryset 
 
     def perform_create(self, serializer):

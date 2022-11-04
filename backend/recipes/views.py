@@ -113,7 +113,7 @@ class RecipeView(viewsets.ModelViewSet):
         # tags = self.request.query_params.get('tags')
         author = self.request.query_params.get('author')
         if author is not None:
-            queryset = queryset.filter(author__username=author)
+            queryset = queryset.filter(author__id=author)
         return queryset 
 
     def perform_create(self, serializer):

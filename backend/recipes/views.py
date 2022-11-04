@@ -9,10 +9,10 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+# from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
-from .filters import AuthorAndTagFilter, IngredientSearchFilter
+from .filters import IngredientSearchFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowSerializer,
@@ -104,7 +104,6 @@ class RecipeView(viewsets.ModelViewSet):
     # filter_backends = [DjangoFilterBackend]
     # filterset_fields = ['tags']
 
-    
     def get_queryset(self):
         queryset = Recipe.objects.all()
         # Добыть параметр color из GET-запроса
@@ -114,7 +113,7 @@ class RecipeView(viewsets.ModelViewSet):
             #  по значению параметра color, полученнго в запросе
             queryset = queryset.filter(tags__slug=name)
         return queryset 
-    
+
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
             return RecipesCreateSerializer
@@ -123,7 +122,7 @@ class RecipeView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    
+
     @action(detail=True, url_path='favorite', methods=['POST'],
             permission_classes=[IsOwnerOrReadOnly])
     def recipe_id_favorite(self, request, pk):

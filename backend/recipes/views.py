@@ -102,32 +102,19 @@ class RecipeView(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('tags', 'author',)
+    filterset_fields = ('author',)
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
             return RecipesCreateSerializer
         return RecipeSerializer
 
-    # def get_filter_tags(self, request):
-    #     queryset = Recipe.objects.all()
-    #     tags = self.request.query_params.get('tags')
-    #     if tags is not None:
-    #         queryset = queryset.filter(tags__slug=tags)
-    #     return queryset 
-    # def get_queryset(self):
-    #     queryset = Recipe.objects.all()
-    #     if self.request.query_params.get('author'):
-    #     if author is not None:
-    #         queryset = queryset.filter(author__id=author)
-    #     return queryset 
-
-    # def get_queryset(self):
-    #     queryset = Recipe.objects.all()
-    #     tags = self.request.query_params.get('tags')
-    #     if tags is not None:
-    #         queryset = queryset.filter(tags__slug=tags)
-    #     return queryset 
+    def get_queryset(self):
+        queryset = Recipe.objects.all()
+        tags = self.request.query_params.get('tags')
+        if tags is not None:
+            queryset = queryset.filter(tags__slug=tags)
+        return queryset 
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)

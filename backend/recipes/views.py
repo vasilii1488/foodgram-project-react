@@ -5,8 +5,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import (IsAuthenticated,)
 from rest_framework.response import Response
 
 from users.models import CustomUser
@@ -87,7 +86,7 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthenticatedOrReadOnly)
+    permission_classes = (IsAuthenticated,)
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
     filterset_class = RecipeFilter

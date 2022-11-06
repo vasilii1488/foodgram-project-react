@@ -117,8 +117,10 @@ class Follow(models.Model):
 class Favorite(models.Model):
     """ Модель для Избранного. """
     user = models.ForeignKey(settings.AUTH_USER_MODEL,
-                             on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+                             on_delete=models.CASCADE,
+                             related_name='user')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name='favorite_recipe')
 
     class Meta:
         verbose_name = 'Избранное'

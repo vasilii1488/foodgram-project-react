@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
-from .filters import IngredientSearchFilter
+from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Follow, Ingredient, Recipe, Favorite,
                      Tag, RecipeIngredient, ShopList)
 from .serializers import (FollowSerializer,
@@ -102,7 +102,7 @@ class RecipeView(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
     filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('author',)
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
@@ -114,9 +114,9 @@ class RecipeView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Recipe.objects.all()
-        tags = self.request.query_params.get('tags')
+        tags = self.request.query_params.get('author')
         if tags is not None:
-            queryset = queryset.filter(tags__slug=tags).distinct()
+            queryset = queryset.filter(author=tags).distinct()
         return queryset
 
     @action(detail=True, url_path='favorite', methods=['POST', 'GET'])
@@ -129,7 +129,7 @@ class RecipeView(viewsets.ModelViewSet):
     @recipe_id_favorite.mapping.delete
     def recipe_id_favorite_del(self, request, pk):
         user = request.user
-        model = ShopList
+        model = Favorite
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
@@ -137,13 +137,13 @@ class RecipeView(viewsets.ModelViewSet):
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """
         user = request.user
-        model = Recipe
+        model = ShopList
         return add_obj(model=model, user=user, pk=pk)
 
     @recipe_cart.mapping.delete
     def recipe_cart_del(self, request, pk):
         user = request.user
-        model = Recipe
+        model = ShopList
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=False,

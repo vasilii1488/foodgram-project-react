@@ -13,8 +13,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .filters import IngredientSearchFilter
-from .models import (Favorite, Follow, Ingredient, Recipe,
-                     ShopList, Tag, RecipeIngredient)
+from .models import (Follow, Ingredient, Recipe,
+                     Tag, RecipeIngredient)
 from .serializers import (FollowSerializer, RecipeFollowSerializer,
                           IngredientSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
@@ -112,23 +112,39 @@ class RecipeView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-
-    @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsOwnerOrReadOnly],
-            filter_backends=(DjangoFilterBackend,),
-            serializer_class=RecipeFollowSerializer)
+    def get_queryset(self):
+        queryset = Recipe.objects.all()
+        tags = self.request.query_params.get('tags')
+        if tags is not None:
+            queryset = queryset.filter(tags__slug=tags).distinct()
+        # user = self.request.user
+        # if user.is_anonymous:
+        #     return queryset
+        # is_in_shopping = self.request.query_params.get('is_in_shopping_cart')
+        # if is_in_shopping is not False:
+        #     queryset = queryset.filter(user=user)
+        # elif is_in_shopping is not True:
+        #     queryset = queryset.exclude(user=user)
+        # is_favorited = self.request.query_params.get('is_favorited')
+        # if is_favorited is not False:
+        #     queryset = queryset.filter(is_favorited__resipes=is_favorited)
+        # if is_favorited  is not True:
+        #     queryset = queryset.exclude(is_favorited__user__id=is_favorited)
+        return queryset
+    
+    @action(detail=True, url_path='favorite', methods=['POST', 'GET'])
     def recipe_id_favorite(self, request, pk=None):
         """ Метод добавления рецепта в избранное. """
         user = request.user
         model = Favorite
         return add_obj(model=model, user=user, pk=pk)
 
-    # def get_queryset(self):
-    #     queryset = Recipe.objects.all()
-    #     tags = self.request.query_params.get('tags')
-    #     if tags is not None:
-    #         queryset = queryset.filter(tags__slug=tags)
-    #     return queryset
+    def get_queryset(self):
+        queryset = Recipe.objects.all()
+        tags = self.request.query_params.get('tags')
+        if tags is not None:
+            queryset = queryset.filter(tags__slug=tags)
+        return queryset
 
     @recipe_id_favorite.mapping.delete
     def recipe_id_favorite_del(self, request, pk):

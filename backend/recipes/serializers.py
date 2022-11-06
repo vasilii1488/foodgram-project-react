@@ -151,6 +151,14 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             }).data
 
 
+class ShortRecipeSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для краткого отображения сведений о рецепте
+    """
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+
 class RecipeFollowSerializer(serializers.ModelSerializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """
@@ -230,7 +238,7 @@ class FollowSerializer(serializers.ModelSerializer):
         queryset = Recipe.objects.filter(author=obj.following)
         if limit:
             queryset = queryset[:int(limit)]
-        return RecipeFollowSerializer(queryset, many=True).data
+        return ShortRecipeSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.following).count()

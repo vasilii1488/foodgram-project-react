@@ -161,8 +161,36 @@ class RecipeFollowSerializer(serializers.ModelSerializer):
     image = Base64ImageField(max_length=None, use_url=False,)
 
 
+class FollowCreateSerializer(serializers.ModelSerializer):
+    """ Сериализатор создания объекта Подписки. """
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all())
+    following = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all())
+
+    class Meta:
+        model = Follow
+        fields = ('user', 'following')
+
+    def validate(self, data):
+        user = self.context.get('request').user
+        following_id = data['following'].id
+        if Follow.objects.filter(
+            user=user,
+            following=following_id,
+        ).exists():
+            raise serializers.ValidationError(
+                'Вы уже подписаны!'
+            )
+        if user.id == following_id:
+            raise serializers.ValidationError(
+                'Вы не можете подписаться на самого себя!!'
+            )
+        return data
+
+
 class UserFollowSerializer(CustomUserSerializer):
-    """ Сериализатор модели Пользователя, для корректного отображения
+    """ Сериализатор модели Пользователя, для отображения
         в подписках. """
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
@@ -171,6 +199,10 @@ class UserFollowSerializer(CustomUserSerializer):
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
         model = CustomUser
+
+    def to_representation(self, instance):
+        authors = FollowSerializer(instance.following, context={'request': self.context.get('request')})
+        return authors.data
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -190,16 +222,15 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         return Follow.objects.filter(
-            user=obj.user, author=obj.author
-        ).exists()
+            user=obj.user, following=obj.following).exists()
 
     def get_recipes(self, obj):
-        request = self.context.get('request')
+        request = self.context['request']
         limit = request.GET.get('recipes_limit')
-        queryset = Recipe.objects.filter(author=obj.author)
+        queryset = Recipe.objects.filter(author=obj.following)
         if limit:
             queryset = queryset[:int(limit)]
         return RecipeFollowSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.author).count()
+        return Recipe.objects.filter(author=obj.following).count()

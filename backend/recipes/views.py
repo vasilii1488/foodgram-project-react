@@ -11,7 +11,7 @@ from rest_framework.response import Response
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
+from .permissions import IsAdminOrReadOnly
 from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Follow, Ingredient, Recipe, Favorite,
                      Tag, RecipeIngredient, ShopList)
@@ -77,7 +77,7 @@ class TagView(viewsets.ReadOnlyModelViewSet):
 
 class IngredientView(viewsets.ReadOnlyModelViewSet):
     serializer_class = IngredientSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Ingredient.objects.all()
     filter_backends = (IngredientSearchFilter,)
     search_fields = ('^name',)
@@ -87,7 +87,7 @@ class IngredientView(viewsets.ReadOnlyModelViewSet):
 class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     queryset = Recipe.objects.all()
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = (IsAuthenticatedOrReadOnly)
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
     filterset_class = RecipeFilter
@@ -101,7 +101,7 @@ class RecipeView(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-    @action(detail=True, url_path='favorite', methods=['POST', 'GET'])
+    @action(detail=True, url_path='favorite', methods=['POST'])
     def recipe_id_favorite(self, request, pk=None):
         """ Метод добавления рецепта в избранное. """
         user = request.user
@@ -114,9 +114,8 @@ class RecipeView(viewsets.ModelViewSet):
         model = Favorite
         return remov_obj(model=model, user=user, pk=pk)
 
-    @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            permission_classes=[IsOwnerOrReadOnly])
-    def recipe_cart(self, request, pk):
+    @action(detail=True, url_path='shopping_cart', methods=['POST'])
+    def recipe_cart(self, request, pk=None):
         """ Метод добавления рецепта в список покупок. """
         user = request.user
         model = ShopList
@@ -130,8 +129,7 @@ class RecipeView(viewsets.ModelViewSet):
 
     @action(detail=False,
             url_path='download_shopping_cart',
-            methods=['GET'],
-            permission_classes=[IsAuthenticated])
+            methods=['GET'])
     def download_cart_recipe(self, request):
         """ Метод скачивания списка продуктов. """
         ingredients_list = RecipeIngredient.objects.filter(

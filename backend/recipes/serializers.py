@@ -151,23 +151,13 @@ class RecipesCreateSerializer(serializers.ModelSerializer):
             }).data
 
 
-class ShortRecipeSerializer(serializers.ModelSerializer):
-    """
-    Сериализатор для краткого отображения сведений о рецепте
-    """
-    class Meta:
-        model = Recipe
-        fields = ('id', 'name', 'image', 'cooking_time')
-
-
 class RecipeFollowSerializer(serializers.ModelSerializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """
 
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-    cooking_time = serializers.IntegerField()
-    image = Base64ImageField(max_length=None, use_url=False,)
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class FollowCreateSerializer(serializers.ModelSerializer):
@@ -184,10 +174,8 @@ class FollowCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user = self.context.get('request').user
         following_id = data['following'].id
-        if Follow.objects.filter(
-            user=user,
-            following=following_id,
-        ).exists():
+        if Follow.objects.filter(user=user,
+                                 following=following_id,).exists():
             raise serializers.ValidationError(
                 'Вы уже подписаны!'
             )
@@ -210,7 +198,8 @@ class UserFollowSerializer(CustomUserSerializer):
         model = CustomUser
 
     def to_representation(self, instance):
-        authors = FollowSerializer(instance.following, context={'request': self.context.get('request')})
+        authors = FollowSerializer(instance.following, 
+                                   context={'request': self.context.get('request')})
         return authors.data
 
 
@@ -239,7 +228,7 @@ class FollowSerializer(serializers.ModelSerializer):
         queryset = Recipe.objects.filter(author=obj.following)
         if limit:
             queryset = queryset[:int(limit)]
-        return ShortRecipeSerializer(queryset, many=True).data
+        return RecipeFollowSerializer(queryset, many=True).data
 
     def get_recipes_count(self, obj):
         return Recipe.objects.filter(author=obj.following).count()

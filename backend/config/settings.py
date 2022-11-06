@@ -8,7 +8,7 @@ SECRET_KEY = '36!$c%)bdiekuubt!sg-++v*43gu=q3rr^%4j!v9pn$snm^nx9'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*', 'localhost']
 
@@ -132,7 +132,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny', ],
+    'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.AllowAny',],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
     'DEFAULT_AUTHENTICATION_CLASSES': [

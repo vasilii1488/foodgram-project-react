@@ -159,6 +159,7 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
+
 class RecipeFollowSerializer(serializers.ModelSerializer):
     """ Сериализатор модели Рецепты для корректного отображения
         в подписках. """

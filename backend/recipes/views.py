@@ -9,7 +9,6 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .filters import IngredientSearchFilter, RecipeFilter
@@ -101,7 +100,6 @@ class RecipeView(viewsets.ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly]
     pagination_class = PageNumberPagination
     pagination_class.page_size = 6
-    filter_backends = (DjangoFilterBackend,)
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
@@ -112,12 +110,6 @@ class RecipeView(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def get_queryset(self):
-        queryset = Recipe.objects.all()
-        tags = self.request.query_params.get('author')
-        if tags is not None:
-            queryset = queryset.filter(author=tags).distinct()
-        return queryset
 
     @action(detail=True, url_path='favorite', methods=['POST', 'GET'])
     def recipe_id_favorite(self, request, pk=None):

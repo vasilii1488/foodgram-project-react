@@ -9,8 +9,8 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
+from users.models import CustomUser
 from users.serializers import CustomUserSerializer
-from django.conf import settings
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Follow, Ingredient, Recipe, Favorite,
@@ -25,7 +25,7 @@ from .utils import remov_obj, add_obj
 class CustomUserViewSet(UserViewSet):
     """ Вьюсет для модели пользователя с дополнительным операциями
         через GET запросы. """
-    queryset = settings.AUTH_USER_MODEL.objects.all()
+    queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = PageNumberPagination
     permission_classes = (IsAuthenticated,)
@@ -33,7 +33,7 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=True, methods=['post'], url_path='subscribe')
     def user_subscribe_add(self, request, id):
         user = request.user
-        following = get_object_or_404(settings.AUTH_USER_MODEL, pk=id)
+        following = get_object_or_404(CustomUser, pk=id)
         serializer = FollowCreateSerializer(
             data={'user': user.id, 'following': id},
             context={'request': request})
@@ -46,7 +46,7 @@ class CustomUserViewSet(UserViewSet):
     @user_subscribe_add.mapping.delete
     def user_subscribe_del(self, request, id):
         user = request.user
-        following = get_object_or_404(settings.AUTH_USER_MODEL, pk=id)
+        following = get_object_or_404(CustomUser, pk=id)
         if not Follow.objects.filter(user=user,
                                      following=following).exists():
             return Response(['Вы не подписаны на этого пользователя'],

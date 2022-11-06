@@ -5,7 +5,7 @@ from users.models import CustomUser
 from users.serializers import CustomUserSerializer
 
 from .models import (Follow, Ingredient, Recipe, RecipeIngredient, Tag,
-                     Favorite)
+                     Favorite, ShopList)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -52,18 +52,16 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        request = self.context.get('request')
-        if request.user.is_anonymous:
+        user = self.context.get('request').user
+        if user.is_anonymous:
             return False
-        return Favorite.objects.filter(user=request.user,
-                                       recipe__id=obj.id).exists()
+        return Favorite.objects.filter(id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user
         if user.is_anonymous:
             return False
-        return Recipe.objects.filter(cart_recipe__user=user,
-                                     id=obj.id).exists()
+        return ShopList.objects.filter(id=obj.id).exists()
 
     def validate(self, data):
         if 'request' not in self.context:

@@ -60,13 +60,6 @@ class Recipe(models.Model):
         verbose_name='Время приготовления',
         default=1,
         validators=[MinValueValidator(1, message='Не может быть равно нулю')])
-    cart = models.ManyToManyField(settings.AUTH_USER_MODEL,
-        verbose_name='Список покупок',
-        related_name='carts',)
-    favorite = models.ManyToManyField(settings.AUTH_USER_MODEL,
-        verbose_name='Понравившиеся рецепты',
-        related_name='favorites',)
-    
 
     class Meta:
         ordering = ['-id']
@@ -119,3 +112,36 @@ class Follow(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'following'],
                 name='unique_following')]
+
+
+class Favorite(models.Model):
+    """ Модель для Избранного. """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                             on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранное'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_recipe')]
+
+
+class ShopList(models.Model):
+    """ Модель для Листа Покупок. """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                 on_delete=models.CASCADE,
+                                 related_name='cart_recipe')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name='cart_recipe')
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_customer_recipe')]

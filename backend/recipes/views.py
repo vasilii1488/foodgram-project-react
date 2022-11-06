@@ -13,9 +13,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .filters import IngredientSearchFilter
-from .models import (Follow, Ingredient, Recipe,
-                     Tag, RecipeIngredient)
-from .serializers import (FollowSerializer, RecipeFollowSerializer,
+from .models import (Follow, Ingredient, Recipe, Favorite,
+                     Tag, RecipeIngredient, ShopList)
+from .serializers import (FollowSerializer,
                           IngredientSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer)
@@ -117,21 +117,8 @@ class RecipeView(viewsets.ModelViewSet):
         tags = self.request.query_params.get('tags')
         if tags is not None:
             queryset = queryset.filter(tags__slug=tags).distinct()
-        # user = self.request.user
-        # if user.is_anonymous:
-        #     return queryset
-        # is_in_shopping = self.request.query_params.get('is_in_shopping_cart')
-        # if is_in_shopping is not False:
-        #     queryset = queryset.filter(user=user)
-        # elif is_in_shopping is not True:
-        #     queryset = queryset.exclude(user=user)
-        # is_favorited = self.request.query_params.get('is_favorited')
-        # if is_favorited is not False:
-        #     queryset = queryset.filter(is_favorited__resipes=is_favorited)
-        # if is_favorited  is not True:
-        #     queryset = queryset.exclude(is_favorited__user__id=is_favorited)
         return queryset
-    
+
     @action(detail=True, url_path='favorite', methods=['POST', 'GET'])
     def recipe_id_favorite(self, request, pk=None):
         """ Метод добавления рецепта в избранное. """
@@ -139,17 +126,10 @@ class RecipeView(viewsets.ModelViewSet):
         model = Favorite
         return add_obj(model=model, user=user, pk=pk)
 
-    def get_queryset(self):
-        queryset = Recipe.objects.all()
-        tags = self.request.query_params.get('tags')
-        if tags is not None:
-            queryset = queryset.filter(tags__slug=tags)
-        return queryset
-
     @recipe_id_favorite.mapping.delete
     def recipe_id_favorite_del(self, request, pk):
         user = request.user
-        model = Favorite
+        model = ShopList
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
@@ -157,13 +137,13 @@ class RecipeView(viewsets.ModelViewSet):
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """
         user = request.user
-        model = ShopList
+        model = Recipe
         return add_obj(model=model, user=user, pk=pk)
 
     @recipe_cart.mapping.delete
     def recipe_cart_del(self, request, pk):
         user = request.user
-        model = ShopList
+        model = Recipe
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=False,

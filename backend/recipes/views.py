@@ -135,6 +135,6 @@ class RecipeView(viewsets.ModelViewSet):
             recipe__cart_recipe__user=request.user
         ).values('ingredient__name', 'ingredient__measurement_unit').order_by(
             'ingredient__name').annotate(tolal_sum=Sum('amount'))
-        response = HttpResponse(ingredients_list, 'Content-Type: text/plain')
+        response = HttpResponse(ingredients_list, content_type='text.txt')
         response['Content-Disposition'] = 'attachment; filename=cart_recipe'
         return response

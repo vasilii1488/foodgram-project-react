@@ -15,7 +15,7 @@ from .permissions import IsOwnerOrReadOnly, IsAdminOrReadOnly
 from .filters import IngredientSearchFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
-from .serializers import (FollowSerializer,
+from .serializers import (FollowSerializer, RecipeFollowSerializer,
                           IngredientSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer)
@@ -109,24 +109,26 @@ class RecipeView(viewsets.ModelViewSet):
             return RecipesCreateSerializer
         return RecipeSerializer
 
-    def get_queryset(self):
-        queryset = Recipe.objects.all()
-        tags = self.request.query_params.get('tags')
-        if tags is not None:
-            queryset = queryset.filter(tags__slug=tags)
-        return queryset 
-
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
     @action(detail=True, url_path='favorite', methods=['POST'],
-            permission_classes=[IsOwnerOrReadOnly])
-    def recipe_id_favorite(self, request, pk):
+            permission_classes=[IsOwnerOrReadOnly],
+            filter_backends=(DjangoFilterBackend,),
+            serializer_class=RecipeFollowSerializer)
+    def recipe_id_favorite(self, request, pk=None):
         """ Метод добавления рецепта в избранное. """
         user = request.user
         model = Favorite
         return add_obj(model=model, user=user, pk=pk)
+
+    # def get_queryset(self):
+    #     queryset = Recipe.objects.all()
+    #     tags = self.request.query_params.get('tags')
+    #     if tags is not None:
+    #         queryset = queryset.filter(tags__slug=tags)
+    #     return queryset
 
     @recipe_id_favorite.mapping.delete
     def recipe_id_favorite_del(self, request, pk):

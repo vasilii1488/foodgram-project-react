@@ -4,7 +4,8 @@ from rest_framework import serializers
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
 
-from .models import Follow, Ingredient, Recipe, RecipeIngredient, Tag
+from .models import (Follow, Ingredient, Recipe, RecipeIngredient, Tag,
+                     Favorite)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -51,11 +52,11 @@ class RecipeSerializer(serializers.ModelSerializer):
         )
 
     def get_is_favorited(self, obj):
-        user = self.context.get('request').user
-        if user.is_anonymous:
+        request = self.context.get('request')
+        if request.user.is_anonymous:
             return False
-        return Recipe.objects.filter(favor__user_id=user.id, 
-                                     id=obj.id).exists()
+        return Favorite.objects.filter(user=request.user,
+                                       recipe__id=obj.id).exists()
 
     def get_is_in_shopping_cart(self, obj):
         user = self.context.get('request').user

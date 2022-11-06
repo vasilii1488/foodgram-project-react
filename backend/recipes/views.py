@@ -131,10 +131,25 @@ class RecipeView(viewsets.ModelViewSet):
             methods=['GET'])
     def download_cart_recipe(self, request):
         """ Метод скачивания списка продуктов. """
-        ingredients_list = RecipeIngredient.objects.filter(
+        user = self.request.user
+        ingredients = RecipeIngredient.objects.filter(
             recipe__cart_recipe__user=request.user
         ).values('ingredient__name', 'ingredient__measurement_unit').order_by(
             'ingredient__name').annotate(tolal_sum=Sum('amount'))
-        response = HttpResponse(ingredients_list, content_type='text.txt')
-        response['Content-Disposition'] = 'attachment; filename=cart_recipe'
+
+        filename = f'{user.username}_shopping_list.txt'
+        shopping_list = (
+            f'Список покупок для:\n\n{user.first_name}\n\n'
+        )
+        for ing in ingredients:
+            shopping_list += (
+                f'{ing["ingredient"]}: {ing["amount"]} {ing["measure"]}\n'
+            )
+
+        shopping_list += '\n\nПосчитано в Foodgram'
+
+        response = HttpResponse(
+            shopping_list, content_type='text.txt; charset=utf-8'
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
         return response

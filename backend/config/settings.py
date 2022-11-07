@@ -8,7 +8,7 @@ SECRET_KEY = '36!$c%)bdiekuubt!sg-++v*43gu=q3rr^%4j!v9pn$snm^nx9'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['*', 'localhost']
 

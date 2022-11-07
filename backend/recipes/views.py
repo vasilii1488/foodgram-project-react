@@ -151,7 +151,7 @@ class RecipeView(viewsets.ModelViewSet):
                       f"{value['measurement_unit']}\n"
                       for item, value in shopping_list.items()])
         today = datetime.date.today()
-        main_list.append(f'\n From FoodGram with love, {today.year}')
+        main_list.append(f'\n Enjoy your meal, {today.year}')
         response = HttpResponse(main_list, 'Content-Type: text/plain')
         response['Content-Disposition'] = 'attachment; filename="BuyList.txt"'
         return response

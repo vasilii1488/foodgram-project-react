@@ -27,7 +27,7 @@ class CustomUserViewSet(UserViewSet):
     pagination_class = PageNumberPagination
     permission_classes = (IsAuthenticated,)
 
-    @action(detail=True, url_path='subscribe')
+    @action(detail=True, methods=['post'], url_path='subscribe')
     def user_subscribe_add(self, request, id):
         user = request.user
         following = get_object_or_404(CustomUser, pk=id)

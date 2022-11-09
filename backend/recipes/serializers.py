@@ -172,6 +172,11 @@ class UserFollowSerializer(CustomUserSerializer):
                   'is_subscribed', 'recipes', 'recipes_count')
         model = CustomUser
 
+    def to_representation(self, instance):
+        authors = FollowSerializer(instance.following, 
+                                   context={'request': self.context.get('request')})
+        return authors.data
+
 
 class FollowSerializer(serializers.ModelSerializer):
     """ Создаем сериализатор для подписок. """
@@ -209,6 +214,10 @@ class FollowSerializer(serializers.ModelSerializer):
 
 class FollowCreateSerializer(serializers.ModelSerializer):
     """ Сериализатор создания объекта Подписки. """
+    user = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all())
+    following = serializers.PrimaryKeyRelatedField(
+        queryset=CustomUser.objects.all())
 
     class Meta:
         fields = ('user', 'following')

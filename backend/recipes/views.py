@@ -26,13 +26,15 @@ class CustomUserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = PageNumberPagination
-
+    permission_classes = (IsAuthenticated,)
+    
     @action(detail=True, url_path='subscribe')
     def user_subscribe_add(self, request, id):
         user = request.user
         following = get_object_or_404(CustomUser, pk=id)
         serializer = FollowCreateSerializer(
-            data={'user': user.id, 'following': id})
+            data={'user': user.id, 'following': id},
+            context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         follow = get_object_or_404(Follow, user=user, following=following)

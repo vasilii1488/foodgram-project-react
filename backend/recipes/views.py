@@ -1,3 +1,5 @@
+import datetime
+from django.http.response import HttpResponse
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -7,11 +9,12 @@ from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 
-from .filters import IngredientSearchFilter, RecipeFilter
+
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
+from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
-                     ShopList, Tag)
+                     ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
                           IngredientSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
@@ -127,3 +130,32 @@ class RecipeView(viewsets.ModelViewSet):
         user = request.user
         model = ShopList
         return remov_obj(model=model, user=user, pk=pk)
+
+    @action(detail=False,
+            url_path='download_shopping_cart',
+            methods=['GET'])
+    def download_cart_recipe(self, request):
+        """ Метод скачивания списка продуктов. """
+        shopping_list = {}
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__cart_recipe__user=request.user
+        )
+        for ingredient in ingredients:
+            amount = ingredient.amount
+            name = ingredient.ingredient.name
+            measurement_unit = ingredient.ingredient.measurement_unit
+            if name not in shopping_list:
+                shopping_list[name] = {
+                    'measurement_unit': measurement_unit,
+                    'amount': amount
+                }
+            else:
+                shopping_list[name]['amount'] += amount
+        main_list = ([f"* {item}:{value['amount']}"
+                      f"{value['measurement_unit']}\n"
+                      for item, value in shopping_list.items()])
+        today = datetime.date.today()
+        main_list.append(f'\n Enjoy your meal, {today.year}')
+        response = HttpResponse(main_list, 'Content-Type: text/plain')
+        response['Content-Disposition'] = 'attachment; filename="BuyList.txt"'
+        return response

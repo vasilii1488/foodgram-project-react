@@ -1,5 +1,5 @@
 import datetime
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.http.response import HttpResponse
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -42,7 +42,7 @@ class CustomUserViewSet(UserViewSet):
         follow = get_object_or_404(Follow, user=user, following=following)
         serializer = UserFollowSerializer(follow.following,
                                           context={'request': request})
-        return HttpResponseRedirect(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @user_subscribe_add.mapping.delete
     def user_subscribe_del(self, request, id):
@@ -117,6 +117,7 @@ class RecipeView(viewsets.ModelViewSet):
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
+            pagination_class = None,
             permission_classes=[IsAuthenticated])
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """

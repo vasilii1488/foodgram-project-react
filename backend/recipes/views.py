@@ -22,12 +22,11 @@ from .utils import remov_obj, add_obj
 class CustomUserViewSet(UserViewSet):
     """ Вьюсет для модели пользователя с дополнительным операциями
         через GET запросы. """
-
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     pagination_class = PageNumberPagination
     permission_classes = (IsAuthenticated,)
-    
+
     @action(detail=True, url_path='subscribe')
     def user_subscribe_add(self, request, id):
         user = request.user

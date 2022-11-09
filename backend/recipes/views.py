@@ -1,5 +1,5 @@
 import datetime
-from django.http.response import HttpResponse
+from django.http.response import HttpResponse, HttpResponseRedirect
 from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -42,7 +42,7 @@ class CustomUserViewSet(UserViewSet):
         follow = get_object_or_404(Follow, user=user, following=following)
         serializer = UserFollowSerializer(follow.following,
                                           context={'request': request})
-        return HttpResponse(serializer.data, status=status.HTTP_201_CREATED)
+        return HttpResponseRedirect(serializer.data, status=status.HTTP_201_CREATED)
 
     @user_subscribe_add.mapping.delete
     def user_subscribe_del(self, request, id):

@@ -117,8 +117,8 @@ class RecipeView(viewsets.ModelViewSet):
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            permission_classes=[IsAuthenticated],
-            pagination_class=None)
+            pagination_class=PageNumberPagination,
+            permission_classes=[IsAuthenticated])
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """
 

@@ -108,12 +108,7 @@ class RecipeView(viewsets.ModelViewSet):
         """ Метод добавления рецепта в избранное. """
         user = request.user
         model = Favorite
-        recipe = get_object_or_404(Recipe, id=pk)
-        if model.objects.filter(user=user, recipe=recipe).exists():
-            return Response('Рецепт добавлен в список',
-                            status=status.HTTP_400_BAD_REQUEST)
-        model.objects.create(user=user, recipe=recipe)
-        return Response(status=status.HTTP_201_CREATED)
+        return add_obj(model=model, user=user, pk=pk)
 
     @recipe_id_favorite.mapping.delete
     def recipe_id_favorite_del(self, request, pk):

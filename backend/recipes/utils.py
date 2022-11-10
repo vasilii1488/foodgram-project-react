@@ -23,4 +23,4 @@ def add_obj(model, user, pk):
                         status=status.HTTP_400_BAD_REQUEST)
     obj = model.objects.create(user=user, recipe=recipe)
     serializer = RecipeFollowSerializer(obj.recipe)
-    return Response(serializer.data,status=status.HTTP_201_CREATED)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)

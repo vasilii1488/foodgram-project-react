@@ -89,6 +89,7 @@ class RecipeView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
+    pagination_class = None
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):
@@ -113,7 +114,6 @@ class RecipeView(viewsets.ModelViewSet):
         return remov_obj(model=model, user=user, pk=pk)
 
     @action(detail=True, url_path='shopping_cart', methods=['POST'],
-            pagination_class=[None,],
             permission_classes=[IsAuthenticated])
     def recipe_cart(self, request, pk):
         """ Метод добавления рецепта в список покупок. """

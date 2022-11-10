@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
+from .serializers import RecipeFollowSerializer
 from .models import Recipe
 
 
@@ -20,5 +21,6 @@ def add_obj(model, user, pk):
     if model.objects.filter(user=user, recipe=recipe).exists():
         return Response('Рецепт добавлен в список',
                         status=status.HTTP_400_BAD_REQUEST)
-    model.objects.create(user=user, recipe=recipe)
-    return Response(status=status.HTTP_201_CREATED)
+    obj = model.objects.create(user=user, recipe=recipe)
+    serializer = RecipeFollowSerializer(obj.recipe)
+    return Response(serializer.data,status=status.HTTP_201_CREATED)

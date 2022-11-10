@@ -28,6 +28,7 @@ class CustomUserViewSet(UserViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
     permission_classes = (IsAuthenticated,)
+    pagination_class = LimitPageNumberPagination
 
     @action(detail=True, methods=['post'], url_path='subscribe')
     def user_subscribe_add(self, request, id):

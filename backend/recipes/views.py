@@ -7,11 +7,11 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
 
 
 from users.models import CustomUser
 from users.serializers import CustomUserSerializer
+from .pagination import LimitPageNumberPagination
 from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
@@ -90,7 +90,7 @@ class RecipeView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Recipe.objects.all()
     filterset_class = RecipeFilter
-    pagination_class = PageNumberPagination
+    pagination_class = LimitPageNumberPagination
 
     def get_serializer_class(self):
         if self.request.method in ('POST', 'PUT', 'PATCH'):

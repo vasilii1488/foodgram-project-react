@@ -4,7 +4,6 @@ from djoser.views import UserViewSet
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -27,7 +26,6 @@ class CustomUserViewSet(UserViewSet):
         через GET запросы. """
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
-    pagination_class = PageNumberPagination
     permission_classes = (IsAuthenticated,)
 
     @action(detail=True, methods=['post'], url_path='subscribe')
@@ -90,8 +88,6 @@ class RecipeView(viewsets.ModelViewSet):
     serializer_class = RecipeSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     queryset = Recipe.objects.all()
-    pagination_class = PageNumberPagination
-    pagination_class.page_size = 6
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):

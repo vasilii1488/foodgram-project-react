@@ -16,7 +16,7 @@ from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
-                          IngredientSerializer,
+                          IngredientSerializer, UserFollowSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer)
 from .utils import remov_obj, add_obj
@@ -33,15 +33,14 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=True, methods=['POST'], url_path='subscribe')
     def user_subscribe_add(self, request, id):
         user = request.user
-        # following = get_object_or_404(CustomUser, pk=id)
+        following = get_object_or_404(CustomUser, pk=id)
         serializer = FollowCreateSerializer(
             data={'user': user.id, 'following': id},
             context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        # follow = get_object_or_404(Follow, user=user, following=following)
-        # serializer = UserFollowSerializer(follow.following,
-        #                                   context={'request': request})
+        follow = get_object_or_404(Follow, user=user, following=following)
+        serializer = UserFollowSerializer(follow.following)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @user_subscribe_add.mapping.delete

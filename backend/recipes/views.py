@@ -15,7 +15,7 @@ from .pagination import LimitPageNumberPagination
 from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
-from .serializers import (FollowCreateSerializer, FollowSerializer,
+from .serializers import (FollowCreateSerializer,
                           IngredientSerializer, UserFollowSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer)
@@ -62,7 +62,7 @@ class CustomUserViewSet(UserViewSet):
         user = request.user
         queryset = Follow.objects.filter(user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = FollowSerializer(
+        serializer = UserFollowSerializer(
             pages,
             many=True,
             context={'request': request}

@@ -166,6 +166,7 @@ class UserFollowSerializer(CustomUserSerializer):
         в подписках. """
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('email', 'id', 'username', 'first_name', 'last_name',

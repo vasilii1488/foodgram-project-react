@@ -201,19 +201,30 @@ class FollowSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='following.email')
     first_name = serializers.ReadOnlyField(source='following.first_name')
     last_name = serializers.ReadOnlyField(source='following.last_name')
-    is_subscribed = serializers.SerializerMethodField(default=True)
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed', 'recipes', 'recipes_count')
         model = Follow
+        fields = ('id', 'email', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count')
 
+    def get_is_subscribed(self, obj):
+        return Follow.objects.filter(
+            user=obj.user, following=obj.following
+        ).exists()
 
-    def to_representation(self, instance):
-        authors = UserFollowSerializer(instance.following, context={'request': self.context.get('request')})
-        return authors.data
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        queryset = Recipe.objects.filter(following=obj.following)
+        if limit:
+            queryset = queryset[:int(limit)]
+        return RecipeFollowSerializer(queryset, many=True).data
+
+    def get_recipes_count(self, obj):
+        return Recipe.objects.filter(following=obj.following).count()
 
 
 class FollowCreateSerializer(serializers.ModelSerializer):

@@ -16,7 +16,7 @@ from .filters import IngredientSearchFilter, RecipeFilter
 from .models import (Favorite, Follow, Ingredient, Recipe,
                      ShopList, Tag, RecipeIngredient)
 from .serializers import (FollowCreateSerializer, FollowSerializer,
-                          IngredientSerializer,
+                          IngredientSerializer, UserFollowSerializer,
                           RecipesCreateSerializer, RecipeSerializer,
                           TagSerializer)
 from .utils import remov_obj, add_obj
@@ -40,7 +40,7 @@ class CustomUserViewSet(UserViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         follow = get_object_or_404(Follow, user=user, following=following)
-        serializer = FollowSerializer(follow.following,
+        serializer = UserFollowSerializer(follow.following,
                                           context={'request': request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

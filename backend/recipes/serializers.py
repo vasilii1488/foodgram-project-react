@@ -164,19 +164,33 @@ class RecipeFollowSerializer(RecipeSerializer):
 class UserFollowSerializer(CustomUserSerializer):
     """ Сериализатор модели Пользователя, для корректного отображения
         в подписках. """
+    is_subscribed = serializers.SerializerMethodField()
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
-    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
-        fields = ('email', 'id', 'username', 'first_name', 'last_name',
-                  'is_subscribed', 'recipes', 'recipes_count')
         model = CustomUser
+        fields = (
+            'email', 'id', 'username', 'first_name', 'last_name',
+            'is_subscribed', 'recipes', 'recipes_count'
+        )
+        read_only_fields = fields
 
-    def to_representation(self, instance):
-        authors = FollowSerializer(instance.following, 
-                                   context={'request': self.context.get('request')})
-        return authors.data
+    def get_is_subscribed(*args):
+        return True
+
+    def get_recipes(self, data):
+        request = self.context.get('request')
+        limit = request.query_params.get('recipes_limit')
+        recipes = (data.recipes.all()[:int(limit)] if limit else
+                   data.recipes.all())
+        context = {'request': request}
+        return RecipeFollowSerializer(
+            recipes, many=True, context=context
+        ).data
+
+    def get_recipes_count(self, data):
+        return data.recipes.count()
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -197,16 +211,9 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
 
 
-    def get_recipes(self, obj):
-        request = self.context['request']
-        limit = request.GET.get('recipes_limit')
-        queryset = Recipe.objects.filter(author=obj.following)
-        if limit:
-            queryset = queryset[:int(limit)]
-        return RecipeFollowSerializer(queryset, many=True).data
-
-    def get_recipes_count(self, obj):
-        return Recipe.objects.filter(author=obj.following).count()
+    def to_representation(self, instance):
+        authors = UserFollowSerializer(instance.following, context={'request': self.context.get('request')})
+        return authors.data
 
 
 class FollowCreateSerializer(serializers.ModelSerializer):

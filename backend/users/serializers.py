@@ -10,7 +10,7 @@ User = get_user_model()
 
 class CustomUserSerializer(serializers.ModelSerializer):
 
-    is_subscribed = serializers.SerializerMethodField(default=True)
+    is_subscribed = serializers.SerializerMethodField(default=False)
 
     class Meta:
         model = CustomUser

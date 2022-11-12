@@ -37,12 +37,13 @@ class CustomUserViewSet(UserViewSet):
         serializer = FollowCreateSerializer(
             data={'user': user.id, 'following': id},
             context={'request': request})
+        print(serializer)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         follow = get_object_or_404(Follow, user=user, following=following)
         serializer = FollowSerializer(follow.following,
                                       context={'request': request})
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
     @user_subscribe_add.mapping.delete
     def user_subscribe_del(self, request, id):

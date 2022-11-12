@@ -170,7 +170,7 @@ class UserFollowSerializer(CustomUserSerializer):
     class Meta:
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
-        model = CustomUser
+        model = Follow
 
     def to_representation(self, instance):
         authors = FollowSerializer(instance.following, 
@@ -193,12 +193,10 @@ class FollowSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('email', 'id', 'username', 'first_name', 'last_name',
                   'is_subscribed', 'recipes', 'recipes_count')
-        model = Follow
+        model = CustomUser
 
     def get_is_subscribed(self, obj):
-        return Follow.objects.filter(
-            user=obj.user, following=obj.following
-        ).exists()
+        return True
 
     def get_recipes(self, obj):
         request = self.context['request']
